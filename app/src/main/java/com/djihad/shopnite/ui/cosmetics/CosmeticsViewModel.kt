@@ -1,11 +1,13 @@
 package com.djihad.shopnite.ui.cosmetics
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.djihad.shopnite.data.local.UserSettingsRepository
 import com.djihad.shopnite.data.repository.FortniteRepository
 import com.djihad.shopnite.model.CatalogSnapshot
 import com.djihad.shopnite.model.CosmeticCardItem
+import com.djihad.shopnite.model.CosmeticFilters
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,10 +18,11 @@ import kotlinx.coroutines.launch
 data class CosmeticsUiState(
     val snapshot: CatalogSnapshot = CatalogSnapshot(emptyList(), emptySet()),
     val searchQuery: String = "",
-    val selectedType: String = "All",
+    val selectedType: String = CosmeticFilters.All,
     val showNewOnly: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val debugDetails: String? = null,
 )
 
 class CosmeticsViewModel(
@@ -56,14 +59,19 @@ class CosmeticsViewModel(
     fun refresh(language: String? = null) {
         viewModelScope.launch {
             val apiLanguage = language ?: settingsRepository.settings.first().apiLanguageTag
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, errorMessage = null, debugDetails = null) }
             runCatching { repository.getCatalog(apiLanguage) }
                 .onSuccess { snapshot ->
-                    _uiState.update { it.copy(snapshot = snapshot, isLoading = false) }
+                    _uiState.update { it.copy(snapshot = snapshot, isLoading = false, debugDetails = null) }
                 }
-                .onFailure {
+                .onFailure { throwable ->
+                    Log.e("CosmeticsViewModel", "Catalog load failed", throwable)
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "Couldn't load cosmetics right now.")
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Couldn't load cosmetics right now.",
+                            debugDetails = buildDebugDetails(throwable),
+                        )
                     }
                 }
         }
@@ -73,11 +81,26 @@ class CosmeticsViewModel(
         val state = _uiState.value
         return state.snapshot.items.filter { item ->
             val matchesNew = !state.showNewOnly || item.isNew
-            val matchesType = state.selectedType == "All" || item.typeLabel == state.selectedType
+            val matchesType = state.selectedType == CosmeticFilters.All || item.filterLabel == state.selectedType
             val matchesQuery = state.searchQuery.isBlank() ||
                 item.name.contains(state.searchQuery, ignoreCase = true) ||
-                item.typeLabel.contains(state.searchQuery, ignoreCase = true)
+                item.typeLabel.contains(state.searchQuery, ignoreCase = true) ||
+                item.filterLabel.contains(state.searchQuery, ignoreCase = true)
             matchesNew && matchesType && matchesQuery
         }
+    }
+
+    private fun buildDebugDetails(throwable: Throwable): String {
+        val cause = throwable.cause
+        val primary = throwable.message?.takeIf { it.isNotBlank() }
+        val secondary = cause?.message?.takeIf { it.isNotBlank() }
+        val detail = listOfNotNull(primary, secondary)
+            .distinct()
+            .joinToString(" | ")
+            .take(280)
+        return listOfNotNull(
+            throwable::class.simpleName,
+            detail.takeIf { it.isNotBlank() },
+        ).joinToString(": ")
     }
 }

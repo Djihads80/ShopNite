@@ -199,7 +199,7 @@ data class AllCosmeticsData(
 data class NewCosmeticsData(
     val build: String? = null,
     val date: String? = null,
-    val hashes: List<String> = emptyList(),
+    val hashes: JsonElement? = null,
     val items: NewCosmeticsItems = NewCosmeticsItems(),
     val lastAdditions: JsonElement? = null,
     val previousBuild: String? = null,
@@ -211,11 +211,15 @@ data class NewCosmeticsItems(
     val tracks: List<TrackCosmeticItem> = emptyList(),
     val cars: List<CarCosmeticItem> = emptyList(),
     val lego: List<CosmeticItem> = emptyList(),
+    val legoKits: List<CosmeticItem> = emptyList(),
+    val beans: List<CosmeticItem> = emptyList(),
+    val instruments: List<CosmeticItem> = emptyList(),
 )
 
 @Serializable
 data class CosmeticItem(
     val id: String,
+    val cosmeticId: String? = null,
     val name: String? = null,
     val description: String? = null,
     val type: CosmeticType? = null,

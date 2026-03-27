@@ -36,6 +36,7 @@ object AppViewModelProvider {
         }
         initializer {
             SettingsViewModel(
+                shopNiteApplication().appContainer.fortniteRepository,
                 shopNiteApplication().appContainer.userSettingsRepository,
             )
         }

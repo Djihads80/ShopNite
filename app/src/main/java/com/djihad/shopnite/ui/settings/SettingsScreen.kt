@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -53,10 +55,11 @@ import kotlinx.coroutines.delay
 fun SettingsScreen(
     uiState: SettingsUiState,
     onSaveApiKey: (String) -> Unit,
-    onSaveProfile: (String, AccountType) -> Unit,
+    onValidateAndSaveProfile: (String, String, AccountType) -> Unit,
     onSaveApiLanguage: (String) -> Unit,
     onSaveAppLanguage: (String) -> Unit,
     onUpdateNotifications: (Boolean?, Boolean?) -> Unit,
+    onOpenCredits: () -> Unit,
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -70,15 +73,16 @@ fun SettingsScreen(
         mutableStateOf(uiState.settings.accountType.apiValue)
     }
     val accountType = AccountType.fromApiValue(accountTypeValue)
+    val draftDiffersFromSaved = playerName.trim() != uiState.settings.playerName ||
+        accountType != uiState.settings.accountType
+    val showProfileError = draftDiffersFromSaved && uiState.profileValidationMessage != null
 
-    LaunchedEffect(playerName, accountTypeValue, uiState.settings.playerName, uiState.settings.accountType) {
-        if (playerName.trim() == uiState.settings.playerName &&
-            accountType == uiState.settings.accountType
-        ) {
+    LaunchedEffect(playerName, accountTypeValue, apiKey, uiState.settings.playerName, uiState.settings.accountType) {
+        if (!draftDiffersFromSaved) {
             return@LaunchedEffect
         }
-        delay(400)
-        onSaveProfile(playerName, accountType)
+        delay(700)
+        onValidateAndSaveProfile(apiKey, playerName, accountType)
     }
 
     LaunchedEffect(apiKey, uiState.settings.apiKey) {
@@ -97,14 +101,14 @@ fun SettingsScreen(
         item {
             SectionHeading(
                 title = stringResource(R.string.title_settings),
-                supporting = "Player profile, languages, notifications, and app info.",
+                supporting = stringResource(R.string.settings_supporting),
             )
         }
 
         item {
-            SettingsCard(title = "Player profile") {
+            SettingsCard(title = stringResource(R.string.settings_profile_title)) {
                 Text(
-                    text = "Your username and platform are saved automatically.",
+                    text = stringResource(R.string.settings_profile_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -112,7 +116,24 @@ fun SettingsScreen(
                     value = playerName,
                     onValueChange = { playerName = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Fortnite username") },
+                    label = { Text(stringResource(R.string.settings_profile_label)) },
+                    isError = showProfileError,
+                    supportingText = {
+                        when {
+                            uiState.isValidatingProfile && draftDiffersFromSaved -> {
+                                Text(stringResource(R.string.settings_profile_checking))
+                            }
+                            showProfileError -> {
+                                Text(uiState.profileValidationMessage.orEmpty())
+                            }
+                            playerName.trim().isBlank() -> {
+                                Text(stringResource(R.string.settings_profile_blank_support))
+                            }
+                            else -> {
+                                Text(stringResource(R.string.settings_profile_saved_support))
+                            }
+                        }
+                    },
                     singleLine = true,
                 )
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
@@ -128,13 +149,31 @@ fun SettingsScreen(
                         )
                     }
                 }
+                if (uiState.isValidatingProfile && draftDiffersFromSaved) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .padding(top = 2.dp)
+                                .size(18.dp),
+                            strokeWidth = 2.5.dp,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_profile_validating),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         }
 
         item {
             LanguageCard(
-                title = "API language",
-                supporting = "Controls the language used by shop, cosmetics, and news data from Fortnite-API.",
+                title = stringResource(R.string.settings_api_language_title),
+                supporting = stringResource(R.string.settings_api_language_support),
                 current = SupportedLanguages.api.firstOrNull { it.tag == uiState.settings.apiLanguageTag }
                     ?: SupportedLanguages.api.first(),
                 options = SupportedLanguages.api,
@@ -144,8 +183,8 @@ fun SettingsScreen(
 
         item {
             LanguageCard(
-                title = "App language",
-                supporting = "Controls app locale and localized labels currently included in the app.",
+                title = stringResource(R.string.settings_app_language_title),
+                supporting = stringResource(R.string.settings_app_language_support),
                 current = SupportedLanguages.app.firstOrNull { it.tag == uiState.settings.appLanguageTag }
                     ?: SupportedLanguages.app.first(),
                 options = SupportedLanguages.app,
@@ -154,10 +193,10 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsCard(title = "Notifications") {
+            SettingsCard(title = stringResource(R.string.settings_notifications_title)) {
                 NotificationToggleRow(
-                    title = "Wishlist item returns",
-                    subtitle = "Notify when a wishlisted cosmetic appears in the current item shop.",
+                    title = stringResource(R.string.settings_notify_returns_title),
+                    subtitle = stringResource(R.string.settings_notify_returns_subtitle),
                     checked = uiState.settings.notifyWishlistReturns,
                     onCheckedChange = { enabled ->
                         if (enabled) {
@@ -170,8 +209,8 @@ fun SettingsScreen(
                     },
                 )
                 NotificationToggleRow(
-                    title = "Leaving shop soon",
-                    subtitle = "Notify when a wishlisted item is about to leave the live shop.",
+                    title = stringResource(R.string.settings_notify_leaving_title),
+                    subtitle = stringResource(R.string.settings_notify_leaving_subtitle),
                     checked = uiState.settings.notifyWishlistLeavingSoon,
                     onCheckedChange = { enabled ->
                         if (enabled) {
@@ -187,9 +226,9 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsCard(title = "Advanced API key override") {
+            SettingsCard(title = stringResource(R.string.settings_api_key_title)) {
                 Text(
-                    text = "A default Fortnite-API key is already included. Only change this if you want to use your own key.",
+                    text = stringResource(R.string.settings_api_key_support),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -197,13 +236,13 @@ fun SettingsScreen(
                     value = apiKey,
                     onValueChange = { apiKey = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Fortnite API key") },
+                    label = { Text(stringResource(R.string.settings_api_key_label)) },
                     supportingText = {
                         Text(
                             if (apiKey.trim() == DEFAULT_FORTNITE_API_KEY) {
-                                "Using the built-in default key."
+                                stringResource(R.string.settings_api_key_default)
                             } else {
-                                "Custom key override enabled."
+                                stringResource(R.string.settings_api_key_custom)
                             },
                         )
                     },
@@ -213,36 +252,24 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsCard(title = "Credits") {
+            SettingsCard(title = stringResource(R.string.settings_credits_title)) {
                 Text(
-                    text = "Data is powered by Fortnite-API.",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Text(
-                    text = "ShopNite is an unofficial Fortnite companion app built with Jetpack Compose and Material 3.",
+                    text = stringResource(R.string.settings_credits_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 OutlinedButton(
-                    onClick = { uriHandler.openUri("https://fortnite-api.com/") },
+                    onClick = onOpenCredits,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Open Fortnite-API")
+                    Text(stringResource(R.string.common_open_credits))
                 }
-            }
-        }
-
-        item {
-            SettingsCard(title = "Open source licenses") {
-                LicenseLine("AndroidX / Jetpack Compose", "Apache License 2.0")
-                LicenseLine("Kotlin and kotlinx libraries", "Apache License 2.0")
-                LicenseLine("Retrofit", "Apache License 2.0")
-                LicenseLine("OkHttp", "Apache License 2.0")
-                LicenseLine("Coil", "Apache License 2.0")
-                Text(
-                    text = "See each project repository for the full license text and notices.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                OutlinedButton(
+                    onClick = { uriHandler.openUri("https://fortnite-api.com/") },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.common_open_fortnite_api))
+                }
             }
         }
     }
@@ -254,6 +281,7 @@ private fun SettingsCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
         ),
@@ -288,8 +316,11 @@ private fun LanguageCard(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Box {
-            OutlinedButton(onClick = { expanded = true }) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text(current.label)
             }
             DropdownMenu(
@@ -336,24 +367,6 @@ private fun NotificationToggleRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-        )
-    }
-}
-
-@Composable
-private fun LicenseLine(
-    library: String,
-    license: String,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(
-            text = library,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Text(
-            text = license,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

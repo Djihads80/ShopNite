@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,7 +61,7 @@ fun HomeScreen(
                 IconButton(onClick = onRefresh) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Refresh home",
+                        contentDescription = stringResource(R.string.home_refresh),
                     )
                 }
             }
@@ -74,7 +75,7 @@ fun HomeScreen(
             }
             uiState.isLoadingSummary -> {
                 item {
-                    LoadingCard("Loading current season summary...")
+                    LoadingCard(stringResource(R.string.home_loading_summary))
                 }
             }
             uiState.summary != null -> {
@@ -84,7 +85,10 @@ fun HomeScreen(
             }
             else -> {
                 item {
-                    ErrorCard(message = uiState.errorMessage ?: "Couldn't load the current season summary.")
+                    SetupErrorCard(
+                        message = uiState.summaryErrorMessage ?: stringResource(R.string.home_summary_error),
+                        onOpenSettings = onOpenSettings,
+                    )
                 }
             }
         }
@@ -95,11 +99,11 @@ fun HomeScreen(
 
         if (uiState.isLoadingNews && uiState.news.isEmpty()) {
             item {
-                LoadingCard("Loading Battle Royale news...")
+                LoadingCard(stringResource(R.string.home_loading_news))
             }
         } else if (uiState.news.isEmpty()) {
             item {
-                ErrorCard(message = uiState.errorMessage ?: "No Battle Royale news is available right now.")
+                ErrorCard(message = uiState.newsErrorMessage ?: stringResource(R.string.home_news_empty))
             }
         } else {
             items(uiState.news, key = { it.id }) { card ->
@@ -123,12 +127,12 @@ private fun SetupCard(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text(
-                text = "Set up your player",
+                text = stringResource(R.string.home_setup_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
-                text = "Choose your Fortnite username and platform in Settings to load your current season Battle Royale summary.",
+                text = stringResource(R.string.home_setup_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -141,7 +145,43 @@ private fun SetupCard(
                     contentDescription = null,
                 )
                 Text(
-                    text = "Open settings",
+                    text = stringResource(R.string.common_open_settings),
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SetupErrorCard(
+    message: String,
+    onOpenSettings: () -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.72f),
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+            )
+            Button(
+                onClick = onOpenSettings,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                )
+                Text(
+                    text = stringResource(R.string.common_open_settings),
                     modifier = Modifier.padding(start = 8.dp),
                 )
             }
@@ -178,7 +218,7 @@ private fun SummaryCard(summary: BrSummary) {
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                     Text(
-                        text = "${summary.accountType.label} stats for the current season",
+                        text = stringResource(R.string.home_summary_subtitle),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
@@ -253,9 +293,9 @@ private fun NewsFeedCard(card: NewsCard) {
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.18f),
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.2f),
+                                Color.Black.copy(alpha = 0.94f),
                             ),
                         ),
                     ),
@@ -264,27 +304,13 @@ private fun NewsFeedCard(card: NewsCard) {
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                if (card.tabTitle.isNotBlank()) {
-                    Text(
-                        text = card.tabTitle.uppercase(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.tertiary,
-                    )
-                }
                 Text(
                     text = card.title,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
-                if (card.body.isNotBlank()) {
-                    Text(
-                        text = card.body,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 4,
-                    )
-                }
             }
         }
     }

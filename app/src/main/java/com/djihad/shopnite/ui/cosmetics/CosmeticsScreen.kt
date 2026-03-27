@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.djihad.shopnite.R
 import com.djihad.shopnite.model.CosmeticCardItem
+import com.djihad.shopnite.model.CosmeticFilters
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.FilterChipRow
 import com.djihad.shopnite.ui.components.SearchField
@@ -47,7 +48,7 @@ fun CosmeticsScreen(
     onSetShowNewOnly: (Boolean) -> Unit,
     onOpenCosmetic: (String) -> Unit,
 ) {
-    val filterOptions = listOf("All") + uiState.snapshot.items.map { it.typeLabel }.distinct().sorted()
+    val filterOptions = CosmeticFilters.orderedOptions(uiState.snapshot.items.map { it.filterLabel })
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(144.dp),
@@ -59,13 +60,16 @@ fun CosmeticsScreen(
         item(span = { GridItemSpan(maxLineSpan) }) {
             SectionHeading(
                 title = stringResource(R.string.title_cosmetics),
-                supporting = "Browse every tracked cosmetic",
+                supporting = stringResource(R.string.cosmetics_supporting),
             )
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                listOf(false to "All", true to "New").forEachIndexed { index, option ->
+                listOf(
+                    false to stringResource(R.string.common_all),
+                    true to stringResource(R.string.common_new),
+                ).forEachIndexed { index, option ->
                     SegmentedButton(
                         selected = uiState.showNewOnly == option.first,
                         onClick = { onSetShowNewOnly(option.first) },
@@ -82,7 +86,7 @@ fun CosmeticsScreen(
         item(span = { GridItemSpan(maxLineSpan) }) {
             SearchField(
                 query = uiState.searchQuery,
-                label = "Search cosmetics",
+                label = stringResource(R.string.cosmetics_search),
                 onQueryChange = onSearchChange,
             )
         }
@@ -99,13 +103,18 @@ fun CosmeticsScreen(
             item(span = { GridItemSpan(maxLineSpan) }) {
                 ErrorCard(message = uiState.errorMessage)
             }
+            uiState.debugDetails?.let { details ->
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    ErrorCard(message = "Debug: $details")
+                }
+            }
         } else if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                ErrorCard(message = "Loading cosmetics...")
+                ErrorCard(message = stringResource(R.string.cosmetics_loading))
             }
         } else if (filteredItems.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                ErrorCard(message = "No cosmetics match that filter right now.")
+                ErrorCard(message = stringResource(R.string.cosmetics_empty))
             }
         } else {
             items(filteredItems, key = { it.id }) { item ->
@@ -159,13 +168,6 @@ private fun CosmeticTile(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = item.typeLabel,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 if (item.isNew) {

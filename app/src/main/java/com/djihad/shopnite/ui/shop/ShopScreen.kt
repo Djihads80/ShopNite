@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.djihad.shopnite.R
+import com.djihad.shopnite.model.CosmeticFilters
 import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.ui.colorFromHex
 import com.djihad.shopnite.ui.components.ErrorCard
@@ -49,7 +50,7 @@ fun ShopScreen(
     onSelectType: (String) -> Unit,
     onOpenCosmetic: (String) -> Unit,
 ) {
-    val filterOptions = listOf("All") + uiState.snapshot.items.map { it.typeLabel }.distinct().sorted()
+    val filterOptions = CosmeticFilters.orderedOptions(uiState.snapshot.items.map { it.filterLabel })
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(164.dp),
@@ -61,14 +62,14 @@ fun ShopScreen(
         item(span = { GridItemSpan(maxLineSpan) }) {
             SectionHeading(
                 title = stringResource(R.string.title_shop),
-                supporting = Formatters.formatDate(uiState.snapshot.shopDate) ?: "Current live shop",
+                supporting = Formatters.formatDate(uiState.snapshot.shopDate) ?: stringResource(R.string.shop_supporting),
             )
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
             SearchField(
                 query = uiState.searchQuery,
-                label = "Search shop",
+                label = stringResource(R.string.shop_search),
                 onQueryChange = onSearchChange,
             )
         }
@@ -87,11 +88,11 @@ fun ShopScreen(
             }
         } else if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                ErrorCard(message = "Loading the current item shop...")
+                ErrorCard(message = stringResource(R.string.shop_loading))
             }
         } else if (filteredItems.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                ErrorCard(message = "No shop items match that filter right now.")
+                ErrorCard(message = stringResource(R.string.shop_empty))
             }
         } else {
             items(filteredItems, key = { it.offerId + it.cosmeticId }) { item ->

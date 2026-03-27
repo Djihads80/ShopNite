@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.djihad.shopnite.data.local.UserSettingsRepository
 import com.djihad.shopnite.data.repository.FortniteRepository
+import com.djihad.shopnite.model.CosmeticFilters
 import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.model.ShopSnapshot
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 data class ShopUiState(
     val snapshot: ShopSnapshot = ShopSnapshot(null, null, null, emptyList()),
     val searchQuery: String = "",
-    val selectedType: String = "All",
+    val selectedType: String = CosmeticFilters.All,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )
@@ -67,10 +68,11 @@ class ShopViewModel(
     fun filteredItems(): List<ShopItem> {
         val state = _uiState.value
         return state.snapshot.items.filter { item ->
-            val matchesType = state.selectedType == "All" || item.typeLabel == state.selectedType
+            val matchesType = state.selectedType == CosmeticFilters.All || item.filterLabel == state.selectedType
             val matchesQuery = state.searchQuery.isBlank() ||
                 item.name.contains(state.searchQuery, ignoreCase = true) ||
-                item.typeLabel.contains(state.searchQuery, ignoreCase = true)
+                item.typeLabel.contains(state.searchQuery, ignoreCase = true) ||
+                item.filterLabel.contains(state.searchQuery, ignoreCase = true)
             matchesType && matchesQuery
         }
     }

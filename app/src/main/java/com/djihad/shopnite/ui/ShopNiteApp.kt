@@ -3,11 +3,12 @@ package com.djihad.shopnite.ui
 import android.net.Uri
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -32,10 +33,12 @@ import com.djihad.shopnite.ui.detail.CosmeticDetailScreen
 import com.djihad.shopnite.ui.detail.CosmeticDetailViewModel
 import com.djihad.shopnite.ui.home.HomeScreen
 import com.djihad.shopnite.ui.home.HomeViewModel
+import com.djihad.shopnite.ui.settings.CreditsScreen
 import com.djihad.shopnite.ui.settings.SettingsScreen
 import com.djihad.shopnite.ui.settings.SettingsViewModel
 import com.djihad.shopnite.ui.shop.ShopScreen
 import com.djihad.shopnite.ui.shop.ShopViewModel
+import androidx.compose.ui.unit.dp
 
 private data class TopDestination(
     val route: String,
@@ -46,11 +49,12 @@ private data class TopDestination(
 private val topDestinations = listOf(
     TopDestination("home", R.string.nav_home, Icons.Default.Home),
     TopDestination("shop", R.string.nav_shop, Icons.Default.Storefront),
-    TopDestination("cosmetics", R.string.nav_cosmetics, Icons.Default.Inventory2),
+    TopDestination("cosmetics", R.string.nav_cosmetics, Icons.Default.Checkroom),
     TopDestination("settings", R.string.nav_settings, Icons.Default.Settings),
 )
 
 private const val cosmeticDetailPattern = "cosmetic/{cosmeticId}"
+private const val creditsRoute = "settings/credits"
 
 fun cosmeticDetailRoute(cosmeticId: String): String = "cosmetic/${Uri.encode(cosmeticId)}"
 
@@ -62,9 +66,13 @@ fun ShopNiteApp() {
     val showBottomBar = topDestinations.any { it.route == currentRoute }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             if (showBottomBar) {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    tonalElevation = 0.dp,
+                ) {
                     topDestinations.forEach { destination ->
                         val label = stringResource(destination.labelRes)
                         NavigationBarItem(
@@ -134,10 +142,16 @@ fun ShopNiteApp() {
                 SettingsScreen(
                     uiState = state,
                     onSaveApiKey = viewModel::saveApiKey,
-                    onSaveProfile = viewModel::saveProfile,
+                    onValidateAndSaveProfile = viewModel::validateAndSaveProfile,
                     onSaveApiLanguage = viewModel::saveApiLanguage,
                     onSaveAppLanguage = viewModel::saveAppLanguage,
                     onUpdateNotifications = viewModel::updateNotificationPreferences,
+                    onOpenCredits = { navController.navigate(creditsRoute) },
+                )
+            }
+            composable(creditsRoute) {
+                CreditsScreen(
+                    onBack = { navController.popBackStack() },
                 )
             }
             composable(

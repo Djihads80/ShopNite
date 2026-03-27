@@ -72,6 +72,8 @@ data class CosmeticCardItem(
     val subtitle: String?,
     val description: String?,
     val typeLabel: String,
+    val typeValue: String,
+    val filterLabel: String,
     val rarityLabel: String,
     val rarityKey: String,
     val seriesName: String?,
@@ -92,6 +94,8 @@ data class ShopItem(
     val subtitle: String?,
     val description: String?,
     val typeLabel: String,
+    val typeValue: String,
+    val filterLabel: String,
     val rarityLabel: String,
     val rarityKey: String,
     val seriesName: String?,
@@ -136,4 +140,48 @@ enum class CosmeticSource {
     LegoKits,
     Kicks,
     Instruments,
+}
+
+object CosmeticFilters {
+    const val All = "All"
+
+    private val ordered = listOf(
+        "Outfits",
+        "Emotes",
+        "Pickaxes",
+        "Backblings",
+        "Gliders",
+        "Sidekicks",
+        "Kicks",
+        "Wraps",
+        "Loadings",
+        "Music",
+        "Contrails",
+        "Sprays",
+        "Banners",
+        "Bundles",
+        "Cars",
+        "Decals",
+        "Wheels",
+        "Trails",
+        "Boost",
+        "Jam Tracks",
+        "Guitars",
+        "Basses",
+        "Drums",
+        "Keytars",
+        "Mics",
+        "Auras",
+        "Lego Builds",
+        "Lego Decor sets",
+    )
+
+    fun orderedOptions(present: Collection<String>): List<String> {
+        val labels = present.toSet()
+        val known = ordered.filter(labels::contains)
+        val extras = labels
+            .filterNot(ordered::contains)
+            .sorted()
+        return listOf(All) + known + extras
+    }
 }

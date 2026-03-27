@@ -20,7 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.djihad.shopnite.R
+import com.djihad.shopnite.model.CosmeticFilters
 
 @Composable
 fun ErrorCard(
@@ -79,7 +82,15 @@ fun FilterChipRow(
             FilterChip(
                 selected = option == selected,
                 onClick = { onSelected(option) },
-                label = { Text(option) },
+                label = {
+                    Text(
+                        text = if (option == CosmeticFilters.All) {
+                            stringResource(R.string.common_all)
+                        } else {
+                            option
+                        },
+                    )
+                },
             )
         }
     }

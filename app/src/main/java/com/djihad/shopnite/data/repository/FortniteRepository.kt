@@ -62,7 +62,7 @@ class FortniteRepository(
         val averageMatchMinutes = safeDivide(minutesPlayed, matches)
 
         val statTiles = buildList {
-            add(SummaryStat("Battle Pass", formatWholeNumber(battlePass?.numberAt("level"))))
+            add(SummaryStat("Battle Pass LVL", formatWholeNumber(battlePass?.numberAt("level"))))
             add(SummaryStat("Wins", formatWholeNumber(overall?.numberAt("wins"))))
             add(SummaryStat("Win Rate", formatPercent(overall?.numberAt("winRate"))))
             add(SummaryStat("Matches", formatWholeNumber(matches)))
@@ -103,8 +103,8 @@ class FortniteRepository(
     }
 
     suspend fun getCatalog(language: String): CatalogSnapshot {
-        val all = apiService.getAllCosmetics(language).data
-        val newIds = apiService.getNewCosmetics(language).data.items.allIds()
+        val all = loadStage("all cosmetics") { apiService.getAllCosmetics(language).data }
+        val newIds = loadStage("new cosmetics") { apiService.getNewCosmetics(language).data.items.allIds() }
 
         val items = buildList {
             addAll(all.br.map { it.toCatalogItem(CosmeticSource.BattleRoyale, it.id in newIds) })
@@ -148,10 +148,12 @@ class FortniteRepository(
     private fun CosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem =
         CosmeticCardItem(
             id = id,
-            name = name.orEmpty(),
+            name = name.orEmpty().ifBlank { cosmeticId ?: id },
             subtitle = set?.text ?: introduction?.text,
             description = description,
             typeLabel = type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+            typeValue = normalizeTypeValue(type?.value, source),
+            filterLabel = filterLabelFor(type?.value, type?.displayValue, source),
             rarityLabel = series?.value ?: rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
             rarityKey = series?.backendValue ?: rarity?.value.orEmpty(),
             seriesName = series?.value,
@@ -172,6 +174,8 @@ class FortniteRepository(
             subtitle = vehicleId,
             description = description,
             typeLabel = type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+            typeValue = normalizeTypeValue(type?.value, source),
+            filterLabel = filterLabelFor(type?.value, type?.displayValue, source),
             rarityLabel = series?.value ?: rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
             rarityKey = series?.backendValue ?: rarity?.value.orEmpty(),
             seriesName = series?.value,
@@ -192,6 +196,8 @@ class FortniteRepository(
             subtitle = artist,
             description = listOfNotNull(artist, releaseYear?.toString()).joinToString(" - ").ifBlank { null },
             typeLabel = "Jam Track",
+            typeValue = normalizeTypeValue(null, source),
+            filterLabel = filterLabelFor(null, "Jam Track", source),
             rarityLabel = "Music",
             rarityKey = "jam-track",
             seriesName = null,
@@ -216,6 +222,8 @@ class FortniteRepository(
         subtitle = bundle?.name ?: layout?.name,
         description = item.description,
         typeLabel = item.type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+        typeValue = normalizeTypeValue(item.type?.value, source),
+        filterLabel = filterLabelFor(item.type?.value, item.type?.displayValue, source),
         rarityLabel = item.series?.value ?: item.rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
         rarityKey = item.series?.backendValue ?: item.rarity?.value.orEmpty(),
         seriesName = item.series?.value,
@@ -245,6 +253,8 @@ class FortniteRepository(
         subtitle = bundle?.name ?: layout?.name,
         description = item.description,
         typeLabel = item.type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+        typeValue = normalizeTypeValue(item.type?.value, source),
+        filterLabel = filterLabelFor(item.type?.value, item.type?.displayValue, source),
         rarityLabel = item.series?.value ?: item.rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
         rarityKey = item.series?.backendValue ?: item.rarity?.value.orEmpty(),
         seriesName = item.series?.value,
@@ -274,6 +284,8 @@ class FortniteRepository(
         subtitle = item.artist ?: layout?.name,
         description = item.artist,
         typeLabel = source.defaultTypeLabel(),
+        typeValue = normalizeTypeValue(null, source),
+        filterLabel = filterLabelFor(null, source.defaultTypeLabel(), source),
         rarityLabel = "Music",
         rarityKey = "jam-track",
         seriesName = null,
@@ -297,6 +309,9 @@ class FortniteRepository(
         addAll(tracks.map { it.id })
         addAll(cars.map { it.id })
         addAll(lego.map { it.id })
+        addAll(legoKits.map { it.id })
+        addAll(beans.map { it.id })
+        addAll(instruments.map { it.id })
     }
 
     private fun CosmeticImages?.bestImageUrl(): String? =
@@ -313,12 +328,66 @@ class FortniteRepository(
 
     private fun CosmeticSource.defaultTypeLabel(): String = when (this) {
         CosmeticSource.BattleRoyale -> "Outfit"
-        CosmeticSource.Cars -> "Vehicle"
+        CosmeticSource.Cars -> "Car"
         CosmeticSource.Tracks -> "Jam Track"
-        CosmeticSource.Lego -> "LEGO"
+        CosmeticSource.Lego -> "Lego Decor set"
         CosmeticSource.LegoKits -> "LEGO Build"
         CosmeticSource.Kicks -> "Kicks"
         CosmeticSource.Instruments -> "Instrument"
+    }
+
+    private fun normalizeTypeValue(typeValue: String?, source: CosmeticSource): String = when {
+        !typeValue.isNullOrBlank() -> typeValue.lowercase(Locale.getDefault())
+        source == CosmeticSource.Tracks -> "track"
+        source == CosmeticSource.Kicks -> "shoe"
+        source == CosmeticSource.LegoKits -> "legoset"
+        source == CosmeticSource.Lego -> "legoprop"
+        else -> ""
+    }
+
+    private fun filterLabelFor(
+        typeValue: String?,
+        typeDisplayValue: String?,
+        source: CosmeticSource,
+    ): String {
+        val normalized = normalizeTypeValue(typeValue, source)
+        return when (normalized) {
+            "outfit" -> "Outfits"
+            "emote" -> "Emotes"
+            "pickaxe" -> "Pickaxes"
+            "backpack" -> "Backblings"
+            "glider" -> "Gliders"
+            "sidekick", "pet", "petcarrier" -> "Sidekicks"
+            "shoe" -> "Kicks"
+            "wrap" -> "Wraps"
+            "loadingscreen" -> "Loadings"
+            "music" -> "Music"
+            "contrail" -> "Contrails"
+            "spray" -> "Sprays"
+            "banner" -> "Banners"
+            "bundle" -> "Bundles"
+            "body" -> "Cars"
+            "skin" -> "Decals"
+            "wheel" -> "Wheels"
+            "drifttrail" -> "Trails"
+            "booster" -> "Boost"
+            "track" -> "Jam Tracks"
+            "guitar" -> "Guitars"
+            "bass" -> "Basses"
+            "drum" -> "Drums"
+            "keyboard" -> "Keytars"
+            "mic" -> "Mics"
+            "aura" -> "Auras"
+            "legoset" -> "Lego Builds"
+            "legoprop" -> "Lego Decor sets"
+            else -> typeDisplayValue.orEmpty().ifBlank { source.defaultTypeLabel() }
+        }
+    }
+
+    private suspend fun <T> loadStage(label: String, block: suspend () -> T): T = try {
+        block()
+    } catch (throwable: Throwable) {
+        throw IllegalStateException("Failed while loading $label: ${throwable.message}", throwable)
     }
 
     private fun rarityPalette(rarity: String?): List<String> = when (rarity?.lowercase(Locale.getDefault())) {
