@@ -369,16 +369,14 @@ object FlexibleImageUrlSerializer : KSerializer<String?> {
         else -> null
     }
 
-    private companion object {
-        val preferredImageKeys = listOf(
-            "icon",
-            "featured",
-            "smallIcon",
-            "small",
-            "large",
-            "url",
-            "background",
-            "displayAsset",
-        )
-    }
+    private val preferredImageKeys = listOf(
+        "icon",
+        "featured",
+        "smallIcon",
+        "small",
+        "large",
+        "url",
+        "background",
+        "displayAsset",
+    )
 }
