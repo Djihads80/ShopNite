@@ -20,7 +20,7 @@
     <string name="home_setup_body">Choose your Fortnite username and platform in Settings to load your current season Battle Royale summary.</string>
     <string name="home_summary_subtitle">Battle Royale stats of the current season</string>
     <string name="home_loading_summary">Loading current season summary...</string>
-    <string name="home_summary_error">Couldn&apos;t load the current season summary.</string>
+    <string name="home_summary_error">Couldn\'t load the current season summary.</string>
     <string name="home_loading_news">Loading Battle Royale news...</string>
     <string name="home_news_empty">No Battle Royale news is available right now.</string>
     <string name="shop_supporting">Current live shop</string>
@@ -30,7 +30,7 @@
     <string name="cosmetics_supporting">Browse every tracked cosmetic</string>
     <string name="cosmetics_search">Search cosmetics</string>
     <string name="cosmetics_loading">Loading cosmetics...</string>
-    <string name="cosmetics_error">Couldn&apos;t load cosmetics right now.</string>
+    <string name="cosmetics_error">Couldn\'t load cosmetics right now.</string>
     <string name="cosmetics_empty">No cosmetics match that filter right now.</string>
     <string name="settings_supporting">Player profile, languages, notifications, and app info.</string>
     <string name="settings_profile_title">Player profile</string>
