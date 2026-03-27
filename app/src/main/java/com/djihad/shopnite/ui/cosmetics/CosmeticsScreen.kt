@@ -38,6 +38,7 @@ import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.FilterChipRow
 import com.djihad.shopnite.ui.components.SearchField
 import com.djihad.shopnite.ui.components.SectionHeading
+import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 
 @Composable
