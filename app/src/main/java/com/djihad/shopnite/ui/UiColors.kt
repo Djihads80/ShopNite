@@ -1,5 +1,6 @@
 package com.djihad.shopnite.ui
 
+import android.graphics.Color.parseColor
 import androidx.compose.ui.graphics.Color
 
 fun colorFromHex(hex: String?, fallback: Color = Color(0xFF182033)): Color {
@@ -10,8 +11,8 @@ fun colorFromHex(hex: String?, fallback: Color = Color(0xFF182033)): Color {
         else -> return fallback
     }
     return try {
-        Color(normalized.toULong(16))
-    } catch (_: Exception) {
+        Color(parseColor("#$normalized"))
+    } catch (_: IllegalArgumentException) {
         fallback
     }
 }
