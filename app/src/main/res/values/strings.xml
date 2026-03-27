@@ -55,7 +55,7 @@
     <string name="settings_api_key_default">Using the built-in default key.</string>
     <string name="settings_api_key_custom">Custom key override enabled.</string>
     <string name="settings_credits_title">Credits</string>
-    <string name="settings_credits_body">Fortnite-API credits and open source licenses live on their own page now.</string>
+    <string name="settings_credits_body">Developer credits, Fortnite-API and open source licenses</string>
     <string name="credits_title">Credits</string>
     <string name="credits_body">ShopNite is an unofficial Fortnite companion app built with Jetpack Compose and Material 3.</string>
     <string name="credits_data">Game data, shop data, cosmetics, news, and player stats are powered by Fortnite-API.</string>
