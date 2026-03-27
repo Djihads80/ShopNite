@@ -131,7 +131,8 @@ private fun CosmeticDetailContent(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(320.dp)
+                            .height(320.dp),
+                        contentAlignment = Alignment.BottomCenter,
                     ) {
                         if (rarityBackground != null) {
                             AsyncImage(
@@ -158,9 +159,9 @@ private fun CosmeticDetailContent(
                             model = cosmetic.imageUrl,
                             contentDescription = cosmetic.name,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            contentScale = ContentScale.Fit,
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter),
+                            contentScale = ContentScale.FillWidth,
                         )
                     }
                     Column(
@@ -219,13 +220,13 @@ private fun CosmeticDetailContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
+                        detail.currentShopItem?.bannerText?.takeIf { it.isNotBlank() }?.let {
+                            InfoChip(text = it)
+                        }
                         detail.currentShopItem?.let {
                             Formatters.formatTimeLeft(it.outDate)?.let { timeLeft ->
                                 InfoChip(text = timeLeft)
                             }
-                        }
-                        detail.currentShopItem?.bannerText?.takeIf { it.isNotBlank() }?.let {
-                            InfoChip(text = it)
                         }
                     }
 
@@ -235,9 +236,6 @@ private fun CosmeticDetailContent(
                     )
                     DetailRow("Rarity", cosmetic.rarityLabel)
                     DetailRow("Type", cosmetic.typeLabel)
-                    detail.currentShopItem?.bannerText?.takeIf { it.isNotBlank() }?.let {
-                        DetailRow("Offer tag", it)
-                    }
                     DetailRow("Leaving date", Formatters.formatDateTime(detail.currentShopItem?.outDate) ?: "Not in shop")
                     DetailRow("Added", Formatters.formatDate(cosmetic.addedDate) ?: "Unknown")
                 }

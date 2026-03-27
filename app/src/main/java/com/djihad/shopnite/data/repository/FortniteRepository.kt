@@ -90,7 +90,6 @@ class FortniteRepository(
                 entry.tracks.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Tracks)) }
                 entry.legoKits.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.LegoKits)) }
                 entry.instruments.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Instruments)) }
-                entry.beans.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Kicks)) }
             }
         }
 
@@ -112,7 +111,6 @@ class FortniteRepository(
             addAll(all.tracks.map { it.toCatalogItem(CosmeticSource.Tracks, it.id in newIds) })
             addAll(all.lego.map { it.toCatalogItem(CosmeticSource.Lego, it.id in newIds) })
             addAll(all.legoKits.map { it.toCatalogItem(CosmeticSource.LegoKits, it.id in newIds) })
-            addAll(all.beans.map { it.toCatalogItem(CosmeticSource.Kicks, it.id in newIds) })
             addAll(all.instruments.map { it.toCatalogItem(CosmeticSource.Instruments, it.id in newIds) })
         }.sortedBy { it.name.lowercase(Locale.getDefault()) }
 
@@ -310,7 +308,6 @@ class FortniteRepository(
         addAll(cars.map { it.id })
         addAll(lego.map { it.id })
         addAll(legoKits.map { it.id })
-        addAll(beans.map { it.id })
         addAll(instruments.map { it.id })
     }
 

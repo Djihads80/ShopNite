@@ -38,6 +38,7 @@ private fun mappedAliases(token: String): List<String> = when (token) {
     "alanwalker", "alan_walker" -> listOf("alan_walker")
     "astonmartin", "aston_martin", "aston_martin_series" -> listOf("aston_martin_series")
     "mercedesbenz", "mercedes_benz" -> listOf("mercedes_benz")
+    "starwars", "star_wars", "star_wars_series" -> listOf("star_wars")
     "rivian" -> listOf("rivian")
     "defender" -> listOf("defender")
     "pontiac" -> listOf("pontiac")
@@ -56,7 +57,32 @@ private fun mappedAliases(token: String): List<String> = when (token) {
     "nissan" -> listOf("nissan")
     "mclaren" -> listOf("mclaren")
     "lamborghini" -> listOf("lamborghini")
-    else -> listOf(token)
+    else -> fuzzyAliases(token) + token
+}
+
+private fun fuzzyAliases(token: String): List<String> = buildList {
+    if ("star_wars" in token) add("star_wars")
+    if ("alan_walker" in token) add("alan_walker")
+    if ("aston_martin" in token) add("aston_martin_series")
+    if ("mercedes" in token) add("mercedes_benz")
+    if ("rivian" in token) add("rivian")
+    if ("defender" in token || "land_rover" in token) add("defender")
+    if ("pontiac" in token) add("pontiac")
+    if ("bugatti" in token) add("bugatti")
+    if ("chevrolet" in token) add("chevrolet")
+    if ("ferrari" in token) add("ferrari")
+    if ("ford" in token) add("ford")
+    if ("ram" in token) add("ram")
+    if ("jeep" in token) add("jeep")
+    if ("dodge" in token) add("dodge")
+    if ("porsche" in token) add("porsche")
+    if ("puma" in token) add("puma")
+    if ("adidas" in token) add("adidas")
+    if ("bmw" in token) add("bmw")
+    if ("tesla" in token) add("tesla")
+    if ("nissan" in token) add("nissan")
+    if ("mclaren" in token) add("mclaren")
+    if ("lamborghini" in token) add("lamborghini")
 }
 
 private fun normalizeRarityToken(value: String): String =

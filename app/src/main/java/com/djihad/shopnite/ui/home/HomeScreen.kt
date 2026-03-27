@@ -243,7 +243,7 @@ private fun SummaryCard(summary: BrSummary) {
                             Card(
                                 modifier = Modifier.weight(1f),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.9f),
                                 ),
                             ) {
                                 Column(

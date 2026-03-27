@@ -162,7 +162,7 @@ private fun CosmeticTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(172.dp),
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.BottomCenter,
             ) {
                 if (rarityBackground != null) {
                     AsyncImage(
@@ -188,8 +188,10 @@ private fun CosmeticTile(
                 AsyncImage(
                     model = item.imageUrl,
                     contentDescription = item.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
+                    contentScale = ContentScale.FillWidth,
                 )
             }
             Column(
@@ -200,7 +202,7 @@ private fun CosmeticTile(
                     text = item.name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 if (item.isNew) {

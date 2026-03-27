@@ -3,7 +3,6 @@ package com.djihad.shopnite.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
@@ -79,7 +79,13 @@ fun VbucksBadge(
     modifier: Modifier = Modifier,
 ) {
     Image(
-        painter = painterResource(R.drawable.vbucks),
+        painter = painterResource(
+            if (isSystemInDarkTheme()) {
+                R.drawable.vbucks
+            } else {
+                R.drawable.vbucks_dark
+            },
+        ),
         contentDescription = "V-Bucks",
         modifier = modifier,
         contentScale = ContentScale.Fit,
@@ -176,6 +182,7 @@ fun InfoChip(
     AssistChip(
         modifier = modifier,
         onClick = {},
+        shape = CircleShape,
         label = { Text(text) },
         colors = AssistChipDefaults.assistChipColors(),
     )
