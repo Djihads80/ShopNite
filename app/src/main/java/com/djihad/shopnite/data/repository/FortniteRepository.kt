@@ -35,7 +35,6 @@ class FortniteRepository(
         val data = apiService.getBattleRoyaleNews(language).data
         return data.motds
             .filterNot { it.hidden == true }
-            .sortedByDescending { it.sortingPriority ?: 0 }
             .map { it.toNewsCard(data.image) }
     }
 
@@ -48,27 +47,36 @@ class FortniteRepository(
             apiKey = apiKey,
             name = playerName,
             accountType = accountType.apiValue,
+            timeWindow = "season",
         )
 
         val data = response.objectAt("data")
         val account = data?.objectAt("account")
         val battlePass = data?.objectAt("battlePass")
         val overall = data?.objectAt("stats")?.objectAt("all")?.objectAt("overall")
+        val matches = overall?.numberAt("matches")
+        val kills = overall?.numberAt("kills")
+        val minutesPlayed = overall?.numberAt("minutesPlayed")
+        val killsPerMatch = overall?.numberAt("killsPerMatch")
+            ?: safeDivide(kills, matches)
+        val averageMatchMinutes = safeDivide(minutesPlayed, matches)
 
         val statTiles = buildList {
+            add(SummaryStat("Battle Pass", formatWholeNumber(battlePass?.numberAt("level"))))
             add(SummaryStat("Wins", formatWholeNumber(overall?.numberAt("wins"))))
-            add(SummaryStat("Matches", formatWholeNumber(overall?.numberAt("matches"))))
-            add(SummaryStat("Kills", formatWholeNumber(overall?.numberAt("kills"))))
-            add(SummaryStat("K/D", formatDecimal(overall?.numberAt("kd"))))
             add(SummaryStat("Win Rate", formatPercent(overall?.numberAt("winRate"))))
-            add(SummaryStat("Minutes", formatWholeNumber(overall?.numberAt("minutesPlayed"))))
+            add(SummaryStat("Matches", formatWholeNumber(matches)))
+            add(SummaryStat("K/D", formatDecimal(overall?.numberAt("kd"))))
+            add(SummaryStat("Kills / Match", formatDecimal(killsPerMatch)))
+            add(SummaryStat("Kills", formatWholeNumber(kills)))
+            add(SummaryStat("Playtime", formatDuration(minutesPlayed)))
+            add(SummaryStat("Avg Match", formatDuration(averageMatchMinutes)))
         }
 
         return BrSummary(
             playerName = account?.stringAt("name").orEmpty().ifBlank { playerName },
             accountType = accountType,
             battlePassLevel = battlePass?.numberAt("level")?.toInt(),
-            battlePassProgress = battlePass?.numberAt("progress")?.toInt(),
             statTiles = statTiles,
         )
     }
@@ -84,7 +92,7 @@ class FortniteRepository(
                 entry.instruments.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Instruments)) }
                 entry.beans.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Kicks)) }
             }
-        }.sortedWith(compareBy({ it.sectionName.orEmpty() }, { it.name }))
+        }
 
         return ShopSnapshot(
             shopDate = data.date,
@@ -354,4 +362,21 @@ class FortniteRepository(
 
     private fun formatPercent(value: Double?): String =
         if (value == null) "0%" else String.format(Locale.getDefault(), "%.1f%%", value)
+
+    private fun formatDuration(value: Double?): String {
+        if (value == null) return "0m"
+        val totalMinutes = value.toInt()
+        val hours = totalMinutes / 60
+        val minutes = totalMinutes % 60
+        return when {
+            hours > 0 && minutes > 0 -> "${hours}h ${minutes}m"
+            hours > 0 -> "${hours}h"
+            else -> "${minutes}m"
+        }
+    }
+
+    private fun safeDivide(numerator: Double?, denominator: Double?): Double? {
+        if (numerator == null || denominator == null || denominator == 0.0) return null
+        return numerator / denominator
+    }
 }

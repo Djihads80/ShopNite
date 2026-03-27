@@ -26,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.djihad.shopnite.R
 import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.ui.colorFromHex
 import com.djihad.shopnite.ui.components.ErrorCard
@@ -58,7 +60,7 @@ fun ShopScreen(
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             SectionHeading(
-                title = "Item Shop",
+                title = stringResource(R.string.title_shop),
                 supporting = Formatters.formatDate(uiState.snapshot.shopDate) ?: "Current live shop",
             )
         }
@@ -83,9 +85,7 @@ fun ShopScreen(
             item(span = { GridItemSpan(maxLineSpan) }) {
                 ErrorCard(message = uiState.errorMessage)
             }
-        }
-
-        if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
+        } else if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 ErrorCard(message = "Loading the current item shop...")
             }

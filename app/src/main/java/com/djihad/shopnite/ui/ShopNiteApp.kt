@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -24,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.djihad.shopnite.R
 import com.djihad.shopnite.ui.cosmetics.CosmeticsScreen
 import com.djihad.shopnite.ui.cosmetics.CosmeticsViewModel
 import com.djihad.shopnite.ui.detail.CosmeticDetailScreen
@@ -37,15 +39,15 @@ import com.djihad.shopnite.ui.shop.ShopViewModel
 
 private data class TopDestination(
     val route: String,
-    val label: String,
+    val labelRes: Int,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
 )
 
 private val topDestinations = listOf(
-    TopDestination("home", "Home", Icons.Default.Home),
-    TopDestination("shop", "Shop", Icons.Default.Storefront),
-    TopDestination("cosmetics", "Cosmetics", Icons.Default.Inventory2),
-    TopDestination("settings", "Settings", Icons.Default.Settings),
+    TopDestination("home", R.string.nav_home, Icons.Default.Home),
+    TopDestination("shop", R.string.nav_shop, Icons.Default.Storefront),
+    TopDestination("cosmetics", R.string.nav_cosmetics, Icons.Default.Inventory2),
+    TopDestination("settings", R.string.nav_settings, Icons.Default.Settings),
 )
 
 private const val cosmeticDetailPattern = "cosmetic/{cosmeticId}"
@@ -64,6 +66,7 @@ fun ShopNiteApp() {
             if (showBottomBar) {
                 NavigationBar {
                     topDestinations.forEach { destination ->
+                        val label = stringResource(destination.labelRes)
                         NavigationBarItem(
                             selected = currentRoute == destination.route,
                             onClick = {
@@ -78,10 +81,10 @@ fun ShopNiteApp() {
                             icon = {
                                 Icon(
                                     imageVector = destination.icon,
-                                    contentDescription = destination.label,
+                                    contentDescription = label,
                                 )
                             },
-                            label = { Text(destination.label) },
+                            label = { Text(label) },
                         )
                     }
                 }
@@ -98,8 +101,8 @@ fun ShopNiteApp() {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
                 HomeScreen(
                     uiState = state,
-                    onSaveProfile = viewModel::saveProfile,
                     onRefresh = viewModel::refreshAll,
+                    onOpenSettings = { navController.navigate("settings") },
                 )
             }
             composable("shop") {

@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ShopNite</string>
+    <string name="nav_home">Accueil</string>
+    <string name="nav_shop">Boutique</string>
+    <string name="nav_cosmetics">Cosmetiques</string>
+    <string name="nav_settings">Parametres</string>
+    <string name="title_home">Accueil</string>
+    <string name="title_shop">Boutique</string>
+    <string name="title_cosmetics">Cosmetiques</string>
+    <string name="title_settings">Parametres</string>
+    <string name="title_news">Actualites</string>
+</resources>

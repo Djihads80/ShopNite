@@ -20,25 +20,30 @@ object SupportedLanguages {
     val api = listOf(
         LanguageOption("en", "English"),
         LanguageOption("de", "Deutsch"),
-        LanguageOption("es", "Español"),
-        LanguageOption("es-419", "Español (LatAm)"),
-        LanguageOption("fr", "Français"),
+        LanguageOption("es", "Espanol"),
+        LanguageOption("es-419", "Espanol (LatAm)"),
+        LanguageOption("fr", "Francais"),
         LanguageOption("id", "Bahasa Indonesia"),
         LanguageOption("it", "Italiano"),
-        LanguageOption("ja", "日本語"),
-        LanguageOption("ko", "한국어"),
+        LanguageOption("ja", "Japanese"),
+        LanguageOption("ko", "Korean"),
         LanguageOption("pl", "Polski"),
-        LanguageOption("pt-BR", "Português (Brasil)"),
-        LanguageOption("ru", "Русский"),
-        LanguageOption("th", "ไทย"),
-        LanguageOption("tr", "Türkçe"),
-        LanguageOption("vi", "Tiếng Việt"),
-        LanguageOption("zh-Hans", "简体中文"),
-        LanguageOption("zh-Hant", "繁體中文"),
-        LanguageOption("ar", "العربية"),
+        LanguageOption("pt-BR", "Portuguese (Brazil)"),
+        LanguageOption("ru", "Russian"),
+        LanguageOption("th", "Thai"),
+        LanguageOption("tr", "Turkish"),
+        LanguageOption("vi", "Vietnamese"),
+        LanguageOption("zh-Hans", "Chinese (Simplified)"),
+        LanguageOption("zh-Hant", "Chinese (Traditional)"),
+        LanguageOption("ar", "Arabic"),
     )
 
-    val app = listOf(LanguageOption("system", "Follow system")) + api
+    val app = listOf(
+        LanguageOption("system", "Follow system"),
+        LanguageOption("en", "English"),
+        LanguageOption("es", "Espanol"),
+        LanguageOption("fr", "Francais"),
+    )
 }
 
 data class NewsCard(
@@ -53,7 +58,6 @@ data class BrSummary(
     val playerName: String,
     val accountType: AccountType,
     val battlePassLevel: Int?,
-    val battlePassProgress: Int?,
     val statTiles: List<SummaryStat>,
 )
 

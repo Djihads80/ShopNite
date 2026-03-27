@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -28,21 +27,27 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.djihad.shopnite.R
+import com.djihad.shopnite.data.local.DEFAULT_FORTNITE_API_KEY
 import com.djihad.shopnite.model.AccountType
 import com.djihad.shopnite.model.LanguageOption
 import com.djihad.shopnite.model.SupportedLanguages
 import com.djihad.shopnite.ui.components.SectionHeading
+import kotlinx.coroutines.delay
 
 @Composable
 fun SettingsScreen(
@@ -54,13 +59,35 @@ fun SettingsScreen(
     onUpdateNotifications: (Boolean?, Boolean?) -> Unit,
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val notificationLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) { }
 
     var apiKey by rememberSaveable(uiState.settings.apiKey) { mutableStateOf(uiState.settings.apiKey) }
     var playerName by rememberSaveable(uiState.settings.playerName) { mutableStateOf(uiState.settings.playerName) }
-    var accountType by rememberSaveable(uiState.settings.accountType) { mutableStateOf(uiState.settings.accountType) }
+    var accountTypeValue by rememberSaveable(uiState.settings.accountType.apiValue) {
+        mutableStateOf(uiState.settings.accountType.apiValue)
+    }
+    val accountType = AccountType.fromApiValue(accountTypeValue)
+
+    LaunchedEffect(playerName, accountTypeValue, uiState.settings.playerName, uiState.settings.accountType) {
+        if (playerName.trim() == uiState.settings.playerName &&
+            accountType == uiState.settings.accountType
+        ) {
+            return@LaunchedEffect
+        }
+        delay(400)
+        onSaveProfile(playerName, accountType)
+    }
+
+    LaunchedEffect(apiKey, uiState.settings.apiKey) {
+        if (apiKey.trim() == uiState.settings.apiKey) {
+            return@LaunchedEffect
+        }
+        delay(400)
+        onSaveApiKey(apiKey)
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -69,36 +96,18 @@ fun SettingsScreen(
     ) {
         item {
             SectionHeading(
-                title = "Settings",
-                supporting = "Control languages, BR profile details, API access, and shop alerts.",
+                title = stringResource(R.string.title_settings),
+                supporting = "Player profile, languages, notifications, and app info.",
             )
         }
 
         item {
-            SettingsCard(title = "Fortnite API key") {
+            SettingsCard(title = "Player profile") {
                 Text(
-                    text = "BR stats use the secured `/v2/stats/br/v2` endpoint, so this app needs your Fortnite API key.",
+                    text = "Your username and platform are saved automatically.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                OutlinedTextField(
-                    value = apiKey,
-                    onValueChange = { apiKey = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("API key") },
-                    singleLine = true,
-                )
-                Button(
-                    onClick = { onSaveApiKey(apiKey) },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text("Save API key")
-                }
-            }
-        }
-
-        item {
-            SettingsCard(title = "BR profile") {
                 OutlinedTextField(
                     value = playerName,
                     onValueChange = { playerName = it },
@@ -110,7 +119,7 @@ fun SettingsScreen(
                     AccountType.entries.forEachIndexed { index, type ->
                         SegmentedButton(
                             selected = accountType == type,
-                            onClick = { accountType = type },
+                            onClick = { accountTypeValue = type.apiValue },
                             shape = androidx.compose.material3.SegmentedButtonDefaults.itemShape(
                                 index = index,
                                 count = AccountType.entries.size,
@@ -119,20 +128,13 @@ fun SettingsScreen(
                         )
                     }
                 }
-                Button(
-                    onClick = { onSaveProfile(playerName, accountType) },
-                    enabled = playerName.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text("Save profile")
-                }
             }
         }
 
         item {
             LanguageCard(
                 title = "API language",
-                supporting = "Changes shop, news, and cosmetic data coming from Fortnite-API.",
+                supporting = "Controls the language used by shop, cosmetics, and news data from Fortnite-API.",
                 current = SupportedLanguages.api.firstOrNull { it.tag == uiState.settings.apiLanguageTag }
                     ?: SupportedLanguages.api.first(),
                 options = SupportedLanguages.api,
@@ -143,7 +145,7 @@ fun SettingsScreen(
         item {
             LanguageCard(
                 title = "App language",
-                supporting = "Changes the app locale. English resources are included today, and the picker is ready for more translations.",
+                supporting = "Controls app locale and localized labels currently included in the app.",
                 current = SupportedLanguages.app.firstOrNull { it.tag == uiState.settings.appLanguageTag }
                     ?: SupportedLanguages.app.first(),
                 options = SupportedLanguages.app,
@@ -180,6 +182,66 @@ fun SettingsScreen(
                         }
                         onUpdateNotifications(null, enabled)
                     },
+                )
+            }
+        }
+
+        item {
+            SettingsCard(title = "Advanced API key override") {
+                Text(
+                    text = "A default Fortnite-API key is already included. Only change this if you want to use your own key.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedTextField(
+                    value = apiKey,
+                    onValueChange = { apiKey = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Fortnite API key") },
+                    supportingText = {
+                        Text(
+                            if (apiKey.trim() == DEFAULT_FORTNITE_API_KEY) {
+                                "Using the built-in default key."
+                            } else {
+                                "Custom key override enabled."
+                            },
+                        )
+                    },
+                    singleLine = true,
+                )
+            }
+        }
+
+        item {
+            SettingsCard(title = "Credits") {
+                Text(
+                    text = "Data is powered by Fortnite-API.",
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Text(
+                    text = "ShopNite is an unofficial Fortnite companion app built with Jetpack Compose and Material 3.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedButton(
+                    onClick = { uriHandler.openUri("https://fortnite-api.com/") },
+                ) {
+                    Text("Open Fortnite-API")
+                }
+            }
+        }
+
+        item {
+            SettingsCard(title = "Open source licenses") {
+                LicenseLine("AndroidX / Jetpack Compose", "Apache License 2.0")
+                LicenseLine("Kotlin and kotlinx libraries", "Apache License 2.0")
+                LicenseLine("Retrofit", "Apache License 2.0")
+                LicenseLine("OkHttp", "Apache License 2.0")
+                LicenseLine("Coil", "Apache License 2.0")
+                Text(
+                    text = "See each project repository for the full license text and notices.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -261,7 +323,10 @@ private fun NotificationToggleRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+            )
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
@@ -271,6 +336,24 @@ private fun NotificationToggleRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+        )
+    }
+}
+
+@Composable
+private fun LicenseLine(
+    library: String,
+    license: String,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            text = library,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        Text(
+            text = license,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

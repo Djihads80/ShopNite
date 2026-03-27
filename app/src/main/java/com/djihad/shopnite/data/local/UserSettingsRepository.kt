@@ -16,8 +16,10 @@ import java.io.IOException
 
 private val Context.userSettingsDataStore by preferencesDataStore(name = "shopnite_user_settings")
 
+const val DEFAULT_FORTNITE_API_KEY = "df018965-d546-4984-92ed-7dd3171af366"
+
 data class UserSettings(
-    val apiKey: String = "",
+    val apiKey: String = DEFAULT_FORTNITE_API_KEY,
     val playerName: String = "",
     val accountType: AccountType = AccountType.Epic,
     val apiLanguageTag: String = "en",
@@ -98,7 +100,7 @@ class UserSettingsRepository(private val context: Context) {
     }
 
     private fun toUserSettings(preferences: Preferences): UserSettings = UserSettings(
-        apiKey = preferences[Keys.ApiKey].orEmpty(),
+        apiKey = preferences[Keys.ApiKey]?.takeIf { it.isNotBlank() } ?: DEFAULT_FORTNITE_API_KEY,
         playerName = preferences[Keys.PlayerName].orEmpty(),
         accountType = AccountType.fromApiValue(preferences[Keys.AccountType]),
         apiLanguageTag = preferences[Keys.ApiLanguage] ?: "en",

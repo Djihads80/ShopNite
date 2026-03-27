@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.djihad.shopnite.data.local.UserSettings
 import com.djihad.shopnite.data.local.UserSettingsRepository
 import com.djihad.shopnite.data.repository.FortniteRepository
-import com.djihad.shopnite.model.AccountType
 import com.djihad.shopnite.model.BrSummary
 import com.djihad.shopnite.model.NewsCard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,12 +45,6 @@ class HomeViewModel(
                     refreshSummary()
                 }
             }
-        }
-    }
-
-    fun saveProfile(name: String, accountType: AccountType) {
-        viewModelScope.launch {
-            settingsRepository.saveProfile(name, accountType)
         }
     }
 
@@ -100,7 +93,7 @@ class HomeViewModel(
                     it.copy(
                         summary = null,
                         isLoadingSummary = false,
-                        errorMessage = "BR stats need a valid Fortnite API key and player profile.",
+                        errorMessage = "Couldn't load the current season BR summary.",
                     )
                 }
             }

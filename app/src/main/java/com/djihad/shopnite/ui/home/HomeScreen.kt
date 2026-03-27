@@ -1,12 +1,9 @@
 package com.djihad.shopnite.ui.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,56 +11,40 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.djihad.shopnite.model.AccountType
+import com.djihad.shopnite.R
 import com.djihad.shopnite.model.BrSummary
+import com.djihad.shopnite.model.NewsCard
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.SectionHeading
-import com.djihad.shopnite.util.Formatters
 
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    onSaveProfile: (String, AccountType) -> Unit,
     onRefresh: () -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
-    var playerName by rememberSaveable(uiState.settings.playerName) {
-        mutableStateOf(uiState.settings.playerName)
-    }
-    var accountType by rememberSaveable(uiState.settings.accountType) {
-        mutableStateOf(uiState.settings.accountType)
-    }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(20.dp),
@@ -75,10 +56,7 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                SectionHeading(
-                    title = "Home",
-                    supporting = "Your BR snapshot and the latest Fortnite news.",
-                )
+                SectionHeading(title = stringResource(R.string.title_home))
                 IconButton(onClick = onRefresh) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -88,72 +66,56 @@ fun HomeScreen(
             }
         }
 
-        item {
-            ProfileCard(
-                playerName = playerName,
-                accountType = accountType,
-                apiKeyConfigured = uiState.settings.apiKey.isNotBlank(),
-                onPlayerNameChange = { playerName = it },
-                onAccountTypeChange = { accountType = it },
-                onSave = { onSaveProfile(playerName, accountType) },
-            )
-        }
-
-        item {
-            when {
-                uiState.isLoadingSummary -> {
-                    LoadingCard("Loading BR summary...")
+        when {
+            uiState.settings.playerName.isBlank() -> {
+                item {
+                    SetupCard(onOpenSettings = onOpenSettings)
                 }
-                uiState.summary != null -> {
+            }
+            uiState.isLoadingSummary -> {
+                item {
+                    LoadingCard("Loading current season summary...")
+                }
+            }
+            uiState.summary != null -> {
+                item {
                     SummaryCard(summary = uiState.summary)
                 }
-                uiState.settings.apiKey.isBlank() -> {
-                    ErrorCard(message = "Add your Fortnite API key in Settings to load BR stats.")
-                }
-                uiState.settings.playerName.isBlank() -> {
-                    ErrorCard(message = "Set a username above to load your Battle Royale summary.")
-                }
             }
-        }
-
-        if (uiState.errorMessage != null) {
-            item {
-                ErrorCard(message = uiState.errorMessage)
+            else -> {
+                item {
+                    ErrorCard(message = uiState.errorMessage ?: "Couldn't load the current season summary.")
+                }
             }
         }
 
         item {
-            SectionHeading(
-                title = "BR News",
-                supporting = if (uiState.isLoadingNews) "Pulling the latest news cards..." else "Styled like the in-game feed.",
-            )
+            SectionHeading(title = stringResource(R.string.title_news))
         }
 
         if (uiState.isLoadingNews && uiState.news.isEmpty()) {
             item {
                 LoadingCard("Loading Battle Royale news...")
             }
-        } else {
+        } else if (uiState.news.isEmpty()) {
             item {
-                NewsPager(news = uiState.news)
+                ErrorCard(message = uiState.errorMessage ?: "No Battle Royale news is available right now.")
+            }
+        } else {
+            items(uiState.news, key = { it.id }) { card ->
+                NewsFeedCard(card)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProfileCard(
-    playerName: String,
-    accountType: AccountType,
-    apiKeyConfigured: Boolean,
-    onPlayerNameChange: (String) -> Unit,
-    onAccountTypeChange: (AccountType) -> Unit,
-    onSave: () -> Unit,
+private fun SetupCard(
+    onOpenSettings: () -> Unit,
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
         ),
     ) {
         Column(
@@ -161,109 +123,108 @@ private fun ProfileCard(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text(
-                text = "Player header",
-                style = MaterialTheme.typography.titleMedium,
+                text = "Set up your player",
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
-                text = if (apiKeyConfigured) {
-                    "Set your username and platform for the BR summary."
-                } else {
-                    "Set your username here, then add your Fortnite API key in Settings to unlock BR stats."
-                },
+                text = "Choose your Fortnite username and platform in Settings to load your current season Battle Royale summary.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            OutlinedTextField(
-                value = playerName,
-                onValueChange = onPlayerNameChange,
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                label = { Text("Fortnite username") },
-            )
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                AccountType.entries.forEachIndexed { index, type ->
-                    SegmentedButton(
-                        selected = accountType == type,
-                        onClick = { onAccountTypeChange(type) },
-                        shape = androidx.compose.material3.SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = AccountType.entries.size,
-                        ),
-                        label = { Text(type.label) },
-                    )
-                }
-            }
             Button(
-                onClick = onSave,
-                enabled = playerName.isNotBlank(),
+                onClick = onOpenSettings,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Save profile")
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                )
+                Text(
+                    text = "Open settings",
+                    modifier = Modifier.padding(start = 8.dp),
+                )
             }
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SummaryCard(summary: BrSummary) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-    ) {
+    Card {
         Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(
-                text = summary.playerName,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = buildString {
-                    append(summary.accountType.label)
-                    if (summary.battlePassLevel != null) {
-                        append(" - BP ")
-                        append(summary.battlePassLevel)
-                    }
-                    if (summary.battlePassProgress != null) {
-                        append(" - ")
-                        append(summary.battlePassProgress)
-                        append("% progress")
-                    }
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                summary.statTiles.forEach { stat ->
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.92f),
+                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.85f),
+                                MaterialTheme.colorScheme.surfaceVariant,
+                            ),
                         ),
+                    )
+                    .padding(20.dp),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = summary.playerName,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                    Text(
+                        text = "${summary.accountType.label} stats for the current season",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                summary.statTiles.chunked(3).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .width(108.dp)
-                                .padding(horizontal = 12.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            Text(
-                                text = stat.label,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text = stat.value,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                            )
+                        row.forEach { stat ->
+                            Card(
+                                modifier = Modifier.weight(1f),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+                                ),
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 14.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    Text(
+                                        text = stat.label,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        text = stat.value,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
+                        }
+                        repeat(3 - row.size) {
+                            Box(modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -272,68 +233,56 @@ private fun SummaryCard(summary: BrSummary) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NewsPager(news: List<com.djihad.shopnite.model.NewsCard>) {
-    if (news.isEmpty()) {
-        ErrorCard(message = "No news cards are available right now.")
-        return
-    }
-
-    val pagerState = rememberPagerState(pageCount = { news.size })
-
-    HorizontalPager(
-        state = pagerState,
-        pageSpacing = 16.dp,
-    ) { page ->
-        val item = news[page]
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(320.dp),
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                AsyncImage(
-                    model = item.imageUrl,
-                    contentDescription = item.title,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.18f),
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
-                                ),
+private fun NewsFeedCard(card: NewsCard) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = card.imageUrl,
+                contentDescription = card.title,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.18f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
                             ),
                         ),
-                )
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    if (item.tabTitle.isNotBlank()) {
-                        Text(
-                            text = item.tabTitle.uppercase(),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.tertiary,
-                        )
-                    }
+                    ),
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (card.tabTitle.isNotBlank()) {
                     Text(
-                        text = item.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
+                        text = card.tabTitle.uppercase(),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.tertiary,
                     )
+                }
+                Text(
+                    text = card.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (card.body.isNotBlank()) {
                     Text(
-                        text = item.body,
+                        text = card.body,
                         style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 3,
+                        maxLines = 4,
                     )
                 }
             }
@@ -351,8 +300,14 @@ private fun LoadingCard(message: String) {
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.5.dp)
-            Text(text = message, style = MaterialTheme.typography.bodyMedium)
+            CircularProgressIndicator(
+                modifier = Modifier.size(22.dp),
+                strokeWidth = 2.5.dp,
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

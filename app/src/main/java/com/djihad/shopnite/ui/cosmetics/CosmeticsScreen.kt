@@ -25,11 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.djihad.shopnite.R
 import com.djihad.shopnite.model.CosmeticCardItem
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.FilterChipRow
@@ -57,8 +58,8 @@ fun CosmeticsScreen(
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             SectionHeading(
-                title = "Cosmetics",
-                supporting = "Browse every tracked cosmetic, or switch to the latest additions.",
+                title = stringResource(R.string.title_cosmetics),
+                supporting = "Browse every tracked cosmetic",
             )
         }
 
@@ -98,9 +99,7 @@ fun CosmeticsScreen(
             item(span = { GridItemSpan(maxLineSpan) }) {
                 ErrorCard(message = uiState.errorMessage)
             }
-        }
-
-        if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
+        } else if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 ErrorCard(message = "Loading cosmetics...")
             }

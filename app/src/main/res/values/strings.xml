@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">ShopNite</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_shop">Shop</string>
+    <string name="nav_cosmetics">Cosmetics</string>
+    <string name="nav_settings">Settings</string>
+    <string name="title_home">Home</string>
+    <string name="title_shop">Item Shop</string>
+    <string name="title_cosmetics">Cosmetics</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_news">News</string>
 </resources>

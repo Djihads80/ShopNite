@@ -229,7 +229,7 @@ data class CosmeticItem(
     val added: String? = null,
     val shopHistory: List<String> = emptyList(),
     val lastAppearance: String? = null,
-    val variants: List<String> = emptyList(),
+    val variants: List<JsonElement> = emptyList(),
 )
 
 @Serializable
