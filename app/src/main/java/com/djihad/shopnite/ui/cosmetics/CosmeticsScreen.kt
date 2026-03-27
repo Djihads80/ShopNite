@@ -36,6 +36,7 @@ import com.djihad.shopnite.model.CosmeticCardItem
 import com.djihad.shopnite.model.CosmeticFilters
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.FilterChipRow
+import com.djihad.shopnite.ui.components.LoadingCard
 import com.djihad.shopnite.ui.components.SearchField
 import com.djihad.shopnite.ui.components.SectionHeading
 import com.djihad.shopnite.ui.findRarityBackgroundRes
@@ -117,7 +118,7 @@ fun CosmeticsScreen(
             }
         } else if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                ErrorCard(message = stringResource(R.string.cosmetics_loading))
+                LoadingCard(message = stringResource(R.string.cosmetics_loading))
             }
         } else if (filteredItems.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -147,7 +148,7 @@ private fun CosmeticTile(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
     ) {
         Column {
             Box(

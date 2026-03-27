@@ -106,6 +106,16 @@ fun ShopNiteApp() {
         }
     }
 
+    fun navigateTopLevel(route: String) {
+        navController.navigate(route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -119,13 +129,7 @@ fun ShopNiteApp() {
                         NavigationBarItem(
                             selected = currentRoute == destination.route,
                             onClick = {
-                                navController.navigate(destination.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                                navigateTopLevel(destination.route)
                             },
                             icon = {
                                 Icon(
@@ -151,7 +155,7 @@ fun ShopNiteApp() {
                 HomeScreen(
                     uiState = state,
                     onRefresh = viewModel::refreshAll,
-                    onOpenSettings = { navController.navigate("settings") },
+                    onOpenSettings = { navigateTopLevel("settings") },
                 )
             }
             composable("shop") {

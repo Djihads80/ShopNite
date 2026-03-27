@@ -36,8 +36,10 @@ import com.djihad.shopnite.model.CosmeticFilters
 import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.FilterChipRow
+import com.djihad.shopnite.ui.components.LoadingCard
 import com.djihad.shopnite.ui.components.SearchField
 import com.djihad.shopnite.ui.components.SectionHeading
+import com.djihad.shopnite.ui.components.VbucksBadge
 import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 import com.djihad.shopnite.util.Formatters
@@ -88,7 +90,7 @@ fun ShopScreen(
             }
         } else if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                ErrorCard(message = stringResource(R.string.shop_loading))
+                LoadingCard(message = stringResource(R.string.shop_loading))
             }
         } else if (filteredItems.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -121,7 +123,7 @@ private fun ShopTile(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
     ) {
         Column {
             Box(
@@ -191,9 +193,7 @@ private fun ShopTile(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        AsyncImage(
-                            model = item.vbuckIconUrl,
-                            contentDescription = "V-Bucks",
+                        VbucksBadge(
                             modifier = Modifier.size(18.dp),
                         )
                         Text(

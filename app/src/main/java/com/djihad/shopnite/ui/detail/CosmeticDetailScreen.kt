@@ -23,7 +23,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +40,8 @@ import coil.compose.AsyncImage
 import com.djihad.shopnite.model.CosmeticDetail
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.InfoChip
+import com.djihad.shopnite.ui.components.LoadingCard
+import com.djihad.shopnite.ui.components.VbucksBadge
 import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 import com.djihad.shopnite.util.Formatters
@@ -75,7 +76,7 @@ fun CosmeticDetailScreen(
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("Loading cosmetic details...")
+                    LoadingCard(message = "Loading cosmetic details...")
                 }
             }
             uiState.errorMessage != null && uiState.detail == null -> {
@@ -122,7 +123,10 @@ private fun CosmeticDetailContent(
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item {
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 Column {
                     Box(
                         modifier = Modifier
@@ -153,8 +157,10 @@ private fun CosmeticDetailContent(
                         AsyncImage(
                             model = cosmetic.imageUrl,
                             contentDescription = cosmetic.name,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentScale = ContentScale.Fit,
                         )
                     }
                     Column(
@@ -171,9 +177,13 @@ private fun CosmeticDetailContent(
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        FilledTonalButton(
+                        Button(
                             onClick = onToggleWishlist,
                             modifier = Modifier.fillMaxWidth(),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                            ),
                         ) {
                             Icon(
                                 imageVector = if (isWishlisted) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
@@ -193,7 +203,7 @@ private fun CosmeticDetailContent(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 ),
             ) {
                 Column(
@@ -209,10 +219,7 @@ private fun CosmeticDetailContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        InfoChip(text = cosmetic.rarityLabel)
-                        cosmetic.seriesName?.let { InfoChip(text = it) }
                         detail.currentShopItem?.let {
-                            InfoChip(text = "${Formatters.formatPrice(it.price)} V-Bucks")
                             Formatters.formatTimeLeft(it.outDate)?.let { timeLeft ->
                                 InfoChip(text = timeLeft)
                             }
@@ -222,7 +229,10 @@ private fun CosmeticDetailContent(
                         }
                     }
 
-                    DetailRow("Price", detail.currentShopItem?.price?.let(Formatters::formatPrice)?.plus(" V-Bucks") ?: "Not in shop")
+                    DetailPriceRow(
+                        label = "Price",
+                        price = detail.currentShopItem?.price,
+                    )
                     DetailRow("Rarity", cosmetic.rarityLabel)
                     DetailRow("Type", cosmetic.typeLabel)
                     detail.currentShopItem?.bannerText?.takeIf { it.isNotBlank() }?.let {
@@ -236,7 +246,10 @@ private fun CosmeticDetailContent(
 
         cosmetic.description?.takeIf { it.isNotBlank() }?.let { description ->
             item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                ) {
                     Column(
                         modifier = Modifier.padding(18.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -252,6 +265,43 @@ private fun CosmeticDetailContent(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailPriceRow(
+    label: String,
+    price: Int?,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (price == null) {
+            Text(
+                text = "Not in shop",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                VbucksBadge(modifier = Modifier.size(18.dp))
+                Text(
+                    text = "${Formatters.formatPrice(price)} V-Bucks",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
     }
