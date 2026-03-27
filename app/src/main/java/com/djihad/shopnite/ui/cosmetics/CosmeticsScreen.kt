@@ -118,7 +118,14 @@ fun CosmeticsScreen(
             }
         } else if (uiState.isLoading && uiState.snapshot.items.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                LoadingCard(message = stringResource(R.string.cosmetics_loading))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(260.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LoadingCard(message = stringResource(R.string.cosmetics_loading))
+                }
             }
         } else if (filteredItems.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
