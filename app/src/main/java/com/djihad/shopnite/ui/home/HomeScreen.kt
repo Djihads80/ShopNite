@@ -319,7 +319,7 @@ private fun NewsFeedCard(card: NewsCard) {
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.92f),
                         maxLines = 4,
                     )
-                )
+                }
             }
         }
     }
