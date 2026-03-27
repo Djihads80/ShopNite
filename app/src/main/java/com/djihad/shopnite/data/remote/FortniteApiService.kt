@@ -1,10 +1,19 @@
 package com.djihad.shopnite.data.remote
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -316,11 +325,60 @@ data class CosmeticIntroduction(
 
 @Serializable
 data class CosmeticImages(
+    @Serializable(with = FlexibleImageUrlSerializer::class)
     val smallIcon: String? = null,
+    @Serializable(with = FlexibleImageUrlSerializer::class)
     val icon: String? = null,
+    @Serializable(with = FlexibleImageUrlSerializer::class)
     val featured: String? = null,
+    @Serializable(with = FlexibleImageUrlSerializer::class)
     val lego: String? = null,
+    @Serializable(with = FlexibleImageUrlSerializer::class)
     val bean: String? = null,
+    @Serializable(with = FlexibleImageUrlSerializer::class)
     val small: String? = null,
+    @Serializable(with = FlexibleImageUrlSerializer::class)
     val large: String? = null,
 )
+
+object FlexibleImageUrlSerializer : KSerializer<String?> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("FlexibleImageUrl", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: String?) {
+        if (value == null) {
+            encoder.encodeNull()
+        } else {
+            encoder.encodeString(value)
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): String? {
+        val element = (decoder as? kotlinx.serialization.json.JsonDecoder)?.decodeJsonElement()
+            ?: return decoder.decodeString()
+
+        return element.extractImageUrl()
+    }
+
+    private fun JsonElement.extractImageUrl(): String? = when (this) {
+        is JsonPrimitive -> contentOrNull
+        is JsonObject -> preferredImageKeys
+            .asSequence()
+            .mapNotNull { key -> jsonObject[key]?.extractImageUrl() }
+            .firstOrNull()
+        else -> null
+    }
+
+    private companion object {
+        val preferredImageKeys = listOf(
+            "icon",
+            "featured",
+            "smallIcon",
+            "small",
+            "large",
+            "url",
+            "background",
+            "displayAsset",
+        )
+    }
+}
