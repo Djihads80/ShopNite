@@ -34,12 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.djihad.shopnite.model.CosmeticDetail
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.InfoChip
+import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 import com.djihad.shopnite.util.Formatters
 
@@ -107,12 +109,11 @@ private fun CosmeticDetailContent(
     onToggleWishlist: () -> Unit,
 ) {
     val cosmetic = detail.cosmetic
-    val gradient = cosmetic.paletteHexes.toComposeColors(
-        defaultColors = listOf(
-            MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.surfaceVariant,
-            MaterialTheme.colorScheme.surface,
-        ),
+    val context = LocalContext.current
+    val rarityBackground = context.findRarityBackgroundRes(
+        rarityKey = cosmetic.rarityKey,
+        rarityLabel = cosmetic.rarityLabel,
+        seriesName = cosmetic.seriesName,
     )
 
     LazyColumn(
@@ -121,14 +122,34 @@ private fun CosmeticDetailContent(
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item {
-            Card {
+            Card(modifier = Modifier.fillMaxWidth()) {
                 Column {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(320.dp)
-                            .background(Brush.verticalGradient(gradient))
                     ) {
+                        if (rarityBackground != null) {
+                            AsyncImage(
+                                model = rarityBackground,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                        } else {
+                            val gradient = cosmetic.paletteHexes.toComposeColors(
+                                defaultColors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    MaterialTheme.colorScheme.surface,
+                                ),
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Brush.verticalGradient(gradient)),
+                            )
+                        }
                         AsyncImage(
                             model = cosmetic.imageUrl,
                             contentDescription = cosmetic.name,
@@ -170,6 +191,7 @@ private fun CosmeticDetailContent(
 
         item {
             Card(
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 ),
@@ -195,11 +217,17 @@ private fun CosmeticDetailContent(
                                 InfoChip(text = timeLeft)
                             }
                         }
+                        detail.currentShopItem?.bannerText?.takeIf { it.isNotBlank() }?.let {
+                            InfoChip(text = it)
+                        }
                     }
 
                     DetailRow("Price", detail.currentShopItem?.price?.let(Formatters::formatPrice)?.plus(" V-Bucks") ?: "Not in shop")
                     DetailRow("Rarity", cosmetic.rarityLabel)
                     DetailRow("Type", cosmetic.typeLabel)
+                    detail.currentShopItem?.bannerText?.takeIf { it.isNotBlank() }?.let {
+                        DetailRow("Offer tag", it)
+                    }
                     DetailRow("Leaving date", Formatters.formatDateTime(detail.currentShopItem?.outDate) ?: "Not in shop")
                     DetailRow("Added", Formatters.formatDate(cosmetic.addedDate) ?: "Unknown")
                 }
@@ -208,7 +236,7 @@ private fun CosmeticDetailContent(
 
         cosmetic.description?.takeIf { it.isNotBlank() }?.let { description ->
             item {
-                Card {
+                Card(modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.padding(18.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),

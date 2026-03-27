@@ -23,9 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,11 +34,11 @@ import coil.compose.AsyncImage
 import com.djihad.shopnite.R
 import com.djihad.shopnite.model.CosmeticFilters
 import com.djihad.shopnite.model.ShopItem
-import com.djihad.shopnite.ui.colorFromHex
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.FilterChipRow
 import com.djihad.shopnite.ui.components.SearchField
 import com.djihad.shopnite.ui.components.SectionHeading
+import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 import com.djihad.shopnite.util.Formatters
 
@@ -110,12 +110,11 @@ private fun ShopTile(
     item: ShopItem,
     onClick: () -> Unit,
 ) {
-    val gradient = item.tileHexes.toComposeColors(
-        defaultColors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-            MaterialTheme.colorScheme.surfaceVariant,
-            MaterialTheme.colorScheme.surface,
-        ),
+    val context = LocalContext.current
+    val rarityBackground = context.findRarityBackgroundRes(
+        rarityKey = item.rarityKey,
+        rarityLabel = item.rarityLabel,
+        seriesName = item.seriesName,
     )
 
     Card(
@@ -129,29 +128,42 @@ private fun ShopTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(190.dp)
-                    .background(Brush.verticalGradient(gradient)),
+                    .background(
+                        if (item.tileHexes.isNotEmpty()) {
+                            Brush.verticalGradient(
+                                item.tileHexes.toComposeColors(
+                                    defaultColors = listOf(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                        MaterialTheme.colorScheme.surfaceVariant,
+                                        MaterialTheme.colorScheme.surface,
+                                    ),
+                                ),
+                            )
+                        } else {
+                            Brush.verticalGradient(
+                                listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    MaterialTheme.colorScheme.surface,
+                                ),
+                            )
+                        },
+                    ),
             ) {
+                if (item.tileHexes.isEmpty() && rarityBackground != null) {
+                    AsyncImage(
+                        model = rarityBackground,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
                 AsyncImage(
                     model = item.imageUrl,
                     contentDescription = item.name,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                 )
-
-                if (!item.bannerText.isNullOrBlank()) {
-                    Text(
-                        text = item.bannerText,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .clip(MaterialTheme.shapes.small)
-                            .background(colorFromHex(item.textBackgroundHex, MaterialTheme.colorScheme.primary))
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
             }
 
             Column(

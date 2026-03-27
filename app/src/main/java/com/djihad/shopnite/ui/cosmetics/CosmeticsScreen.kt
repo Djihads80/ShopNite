@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -134,12 +135,11 @@ private fun CosmeticTile(
     item: CosmeticCardItem,
     onClick: () -> Unit,
 ) {
-    val gradient = item.paletteHexes.toComposeColors(
-        defaultColors = listOf(
-            MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.surfaceVariant,
-            MaterialTheme.colorScheme.surface,
-        ),
+    val context = LocalContext.current
+    val rarityBackground = context.findRarityBackgroundRes(
+        rarityKey = item.rarityKey,
+        rarityLabel = item.rarityLabel,
+        seriesName = item.seriesName,
     )
 
     Card(
@@ -152,10 +152,30 @@ private fun CosmeticTile(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(172.dp)
-                    .background(Brush.verticalGradient(gradient)),
+                    .height(172.dp),
                 contentAlignment = Alignment.Center,
             ) {
+                if (rarityBackground != null) {
+                    AsyncImage(
+                        model = rarityBackground,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    val gradient = item.paletteHexes.toComposeColors(
+                        defaultColors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.surface,
+                        ),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Brush.verticalGradient(gradient)),
+                    )
+                }
                 AsyncImage(
                     model = item.imageUrl,
                     contentDescription = item.name,

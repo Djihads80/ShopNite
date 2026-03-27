@@ -39,6 +39,8 @@ import com.djihad.shopnite.model.BrSummary
 import com.djihad.shopnite.model.NewsCard
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.SectionHeading
+import com.djihad.shopnite.ui.theme.MistWhite
+import com.djihad.shopnite.ui.theme.SoftText
 
 @Composable
 fun HomeScreen(
@@ -310,13 +312,13 @@ private fun NewsFeedCard(card: NewsCard) {
                     text = card.title,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MistWhite,
                 )
                 if (card.body.isNotBlank()) {
                     Text(
                         text = card.body,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.92f),
+                        color = SoftText.copy(alpha = 0.72f),
                         maxLines = 4,
                     )
                 }

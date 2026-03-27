@@ -237,7 +237,7 @@ class FortniteRepository(
         vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
-        bannerText = banner?.value ?: offerTag?.text,
+        bannerText = offerTag?.text ?: banner?.value,
         sectionName = layout?.name ?: layout?.category,
         addedDate = item.added,
     )
@@ -268,7 +268,7 @@ class FortniteRepository(
         vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
-        bannerText = banner?.value ?: offerTag?.text,
+        bannerText = offerTag?.text ?: banner?.value,
         sectionName = layout?.name ?: layout?.category,
         addedDate = item.added,
     )
@@ -299,7 +299,7 @@ class FortniteRepository(
         vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
-        bannerText = banner?.value ?: offerTag?.text,
+        bannerText = offerTag?.text ?: banner?.value,
         sectionName = layout?.name ?: layout?.category,
         addedDate = item.added,
     )
@@ -324,7 +324,7 @@ class FortniteRepository(
         this?.color1,
         this?.color2,
         this?.color3,
-    ).ifEmpty { listOf("182033FF", "101521FF", "080B12FF") }
+    )
 
     private fun CosmeticSource.defaultTypeLabel(): String = when (this) {
         CosmeticSource.BattleRoyale -> "Outfit"
