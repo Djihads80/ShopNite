@@ -1,6 +1,11 @@
 package com.djihad.shopnite.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Checkroom
@@ -14,9 +19,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -39,6 +48,8 @@ import com.djihad.shopnite.ui.settings.SettingsViewModel
 import com.djihad.shopnite.ui.shop.ShopScreen
 import com.djihad.shopnite.ui.shop.ShopViewModel
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 private data class TopDestination(
     val route: String,
@@ -60,10 +71,40 @@ fun cosmeticDetailRoute(cosmeticId: String): String = "cosmetic/${Uri.encode(cos
 
 @Composable
 fun ShopNiteApp() {
+    val context = LocalContext.current
+    val application = context.applicationContext as com.djihad.shopnite.ShopNiteApplication
+    val settingsRepository = application.appContainer.userSettingsRepository
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = topDestinations.any { it.route == currentRoute }
+    val scope = rememberCoroutineScope()
+    val notificationLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { }
+    val hasRequestedNotificationPermission by settingsRepository.settings
+        .map { it.hasRequestedNotificationPermission }
+        .collectAsStateWithLifecycle(initialValue = false)
+
+    fun requestNotificationsPermission(markPrompted: Boolean = true) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (markPrompted) {
+            scope.launch { settingsRepository.setNotificationPermissionRequested() }
+        }
+        if (!granted) {
+            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    LaunchedEffect(hasRequestedNotificationPermission) {
+        if (!hasRequestedNotificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationsPermission()
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -132,7 +173,7 @@ fun ShopNiteApp() {
                     filteredItems = viewModel.filteredItems(),
                     onSearchChange = viewModel::updateSearch,
                     onSelectType = viewModel::selectType,
-                    onSetShowNewOnly = viewModel::setShowNewOnly,
+                    onSelectCollection = viewModel::selectCollection,
                     onOpenCosmetic = { navController.navigate(cosmeticDetailRoute(it)) },
                 )
             }
@@ -163,7 +204,12 @@ fun ShopNiteApp() {
                 CosmeticDetailScreen(
                     uiState = state,
                     onBack = { navController.popBackStack() },
-                    onToggleWishlist = viewModel::toggleWishlist,
+                    onToggleWishlist = {
+                        if (!state.isWishlisted) {
+                            requestNotificationsPermission(markPrompted = false)
+                        }
+                        viewModel.toggleWishlist()
+                    },
                 )
             }
         }

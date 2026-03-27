@@ -53,7 +53,7 @@ fun CosmeticDetailScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Cosmetic") },
+                title = { },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -132,10 +132,8 @@ private fun CosmeticDetailContent(
                         AsyncImage(
                             model = cosmetic.imageUrl,
                             contentDescription = cosmetic.name,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(24.dp),
-                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
                         )
                     }
                     Column(
@@ -202,11 +200,8 @@ private fun CosmeticDetailContent(
                     DetailRow("Price", detail.currentShopItem?.price?.let(Formatters::formatPrice)?.plus(" V-Bucks") ?: "Not in shop")
                     DetailRow("Rarity", cosmetic.rarityLabel)
                     DetailRow("Type", cosmetic.typeLabel)
-                    DetailRow("Occurrences", detail.occurrences?.toString() ?: "Not provided")
                     DetailRow("Leaving date", Formatters.formatDateTime(detail.currentShopItem?.outDate) ?: "Not in shop")
                     DetailRow("Added", Formatters.formatDate(cosmetic.addedDate) ?: "Unknown")
-                    DetailRow("Last appearance", Formatters.formatDate(cosmetic.lastAppearance) ?: "Not provided")
-                    DetailRow("Source", cosmetic.source.name.replace('_', ' '))
                 }
             }
         }

@@ -17,9 +17,10 @@ import kotlinx.coroutines.launch
 
 data class CosmeticsUiState(
     val snapshot: CatalogSnapshot = CatalogSnapshot(emptyList(), emptySet()),
+    val wishlist: Set<String> = emptySet(),
     val searchQuery: String = "",
     val selectedType: String = CosmeticFilters.All,
-    val showNewOnly: Boolean = false,
+    val selectedCollection: String = CosmeticFilters.All,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val debugDetails: String? = null,
@@ -36,6 +37,7 @@ class CosmeticsViewModel(
     init {
         viewModelScope.launch {
             settingsRepository.settings.collect { settings ->
+                _uiState.update { it.copy(wishlist = settings.wishlist) }
                 if (loadedLanguage != settings.apiLanguageTag) {
                     loadedLanguage = settings.apiLanguageTag
                     refresh(settings.apiLanguageTag)
@@ -52,8 +54,8 @@ class CosmeticsViewModel(
         _uiState.update { it.copy(selectedType = type) }
     }
 
-    fun setShowNewOnly(enabled: Boolean) {
-        _uiState.update { it.copy(showNewOnly = enabled) }
+    fun selectCollection(collection: String) {
+        _uiState.update { it.copy(selectedCollection = collection) }
     }
 
     fun refresh(language: String? = null) {
@@ -80,13 +82,17 @@ class CosmeticsViewModel(
     fun filteredItems(): List<CosmeticCardItem> {
         val state = _uiState.value
         return state.snapshot.items.filter { item ->
-            val matchesNew = !state.showNewOnly || item.isNew
+            val matchesCollection = when (state.selectedCollection) {
+                CosmeticFilters.New -> item.isNew
+                CosmeticFilters.Wishlist -> item.id in state.wishlist
+                else -> true
+            }
             val matchesType = state.selectedType == CosmeticFilters.All || item.filterLabel == state.selectedType
             val matchesQuery = state.searchQuery.isBlank() ||
                 item.name.contains(state.searchQuery, ignoreCase = true) ||
                 item.typeLabel.contains(state.searchQuery, ignoreCase = true) ||
                 item.filterLabel.contains(state.searchQuery, ignoreCase = true)
-            matchesNew && matchesType && matchesQuery
+            matchesCollection && matchesType && matchesQuery
         }
     }
 

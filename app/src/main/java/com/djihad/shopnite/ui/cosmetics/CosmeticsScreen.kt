@@ -45,7 +45,7 @@ fun CosmeticsScreen(
     filteredItems: List<CosmeticCardItem>,
     onSearchChange: (String) -> Unit,
     onSelectType: (String) -> Unit,
-    onSetShowNewOnly: (Boolean) -> Unit,
+    onSelectCollection: (String) -> Unit,
     onOpenCosmetic: (String) -> Unit,
 ) {
     val filterOptions = CosmeticFilters.orderedOptions(uiState.snapshot.items.map { it.filterLabel })
@@ -60,22 +60,27 @@ fun CosmeticsScreen(
         item(span = { GridItemSpan(maxLineSpan) }) {
             SectionHeading(
                 title = stringResource(R.string.title_cosmetics),
-                supporting = stringResource(R.string.cosmetics_supporting),
+                supporting = if (uiState.selectedCollection == CosmeticFilters.Wishlist) {
+                    "Wishlisted cosmetics"
+                } else {
+                    stringResource(R.string.cosmetics_supporting)
+                },
             )
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 listOf(
-                    false to stringResource(R.string.common_all),
-                    true to stringResource(R.string.common_new),
+                    CosmeticFilters.All to stringResource(R.string.common_all),
+                    CosmeticFilters.New to stringResource(R.string.common_new),
+                    CosmeticFilters.Wishlist to "Wishlist",
                 ).forEachIndexed { index, option ->
                     SegmentedButton(
-                        selected = uiState.showNewOnly == option.first,
-                        onClick = { onSetShowNewOnly(option.first) },
+                        selected = uiState.selectedCollection == option.first,
+                        onClick = { onSelectCollection(option.first) },
                         shape = androidx.compose.material3.SegmentedButtonDefaults.itemShape(
                             index = index,
-                            count = 2,
+                            count = 3,
                         ),
                         label = { Text(option.second) },
                     )
@@ -148,15 +153,14 @@ private fun CosmeticTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(172.dp)
-                    .background(Brush.verticalGradient(gradient))
-                    .padding(10.dp),
+                    .background(Brush.verticalGradient(gradient)),
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
                     model = item.imageUrl,
                     contentDescription = item.name,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                 )
             }
             Column(

@@ -129,14 +129,13 @@ private fun ShopTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(190.dp)
-                    .background(Brush.verticalGradient(gradient))
-                    .padding(12.dp),
+                    .background(Brush.verticalGradient(gradient)),
             ) {
                 AsyncImage(
                     model = item.imageUrl,
                     contentDescription = item.name,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                 )
 
                 if (!item.bannerText.isNullOrBlank()) {

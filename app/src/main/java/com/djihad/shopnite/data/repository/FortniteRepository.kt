@@ -62,7 +62,7 @@ class FortniteRepository(
         val averageMatchMinutes = safeDivide(minutesPlayed, matches)
 
         val statTiles = buildList {
-            add(SummaryStat("Battle Pass LVL", formatWholeNumber(battlePass?.numberAt("level"))))
+            add(SummaryStat("Season LVL", formatWholeNumber(battlePass?.numberAt("level"))))
             add(SummaryStat("Wins", formatWholeNumber(overall?.numberAt("wins"))))
             add(SummaryStat("Win Rate", formatPercent(overall?.numberAt("winRate"))))
             add(SummaryStat("Matches", formatWholeNumber(matches)))
@@ -318,7 +318,7 @@ class FortniteRepository(
         this?.icon ?: this?.featured ?: this?.smallIcon ?: this?.large ?: this?.small ?: this?.lego ?: this?.bean
 
     private fun CosmeticImages?.bestShopImageUrl(displayImage: String?, bundleImage: String?): String? =
-        displayImage ?: bundleImage ?: bestImageUrl()
+        bestImageUrl() ?: displayImage ?: bundleImage
 
     private fun ShopColors?.toTileHexes(): List<String> = listOfNotNull(
         this?.color1,

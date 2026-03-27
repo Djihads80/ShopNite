@@ -20,12 +20,14 @@ const val DEFAULT_FORTNITE_API_KEY = "df018965-d546-4984-92ed-7dd3171af366"
 
 data class UserSettings(
     val apiKey: String = DEFAULT_FORTNITE_API_KEY,
+    val customApiKey: String = "",
     val playerName: String = "",
     val accountType: AccountType = AccountType.Epic,
     val apiLanguageTag: String = "en",
     val appLanguageTag: String = "system",
     val notifyWishlistReturns: Boolean = true,
     val notifyWishlistLeavingSoon: Boolean = true,
+    val hasRequestedNotificationPermission: Boolean = false,
     val wishlist: Set<String> = emptySet(),
     val notifiedReturnIds: Set<String> = emptySet(),
     val notifiedLeavingTokens: Set<String> = emptySet(),
@@ -77,6 +79,12 @@ class UserSettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun setNotificationPermissionRequested() {
+        context.userSettingsDataStore.edit { preferences ->
+            preferences[Keys.NotificationPermissionRequested] = true
+        }
+    }
+
     suspend fun toggleWishlist(cosmeticId: String) {
         context.userSettingsDataStore.edit { preferences ->
             val current = preferences[Keys.Wishlist].orEmpty().toMutableSet()
@@ -101,12 +109,14 @@ class UserSettingsRepository(private val context: Context) {
 
     private fun toUserSettings(preferences: Preferences): UserSettings = UserSettings(
         apiKey = preferences[Keys.ApiKey]?.takeIf { it.isNotBlank() } ?: DEFAULT_FORTNITE_API_KEY,
+        customApiKey = preferences[Keys.ApiKey].orEmpty(),
         playerName = preferences[Keys.PlayerName].orEmpty(),
         accountType = AccountType.fromApiValue(preferences[Keys.AccountType]),
         apiLanguageTag = preferences[Keys.ApiLanguage] ?: "en",
         appLanguageTag = preferences[Keys.AppLanguage] ?: "system",
         notifyWishlistReturns = preferences[Keys.NotifyReturns] ?: true,
         notifyWishlistLeavingSoon = preferences[Keys.NotifyLeavingSoon] ?: true,
+        hasRequestedNotificationPermission = preferences[Keys.NotificationPermissionRequested] ?: false,
         wishlist = preferences[Keys.Wishlist].orEmpty(),
         notifiedReturnIds = preferences[Keys.NotifiedReturnIds].orEmpty(),
         notifiedLeavingTokens = preferences[Keys.NotifiedLeavingTokens].orEmpty(),
@@ -120,6 +130,7 @@ class UserSettingsRepository(private val context: Context) {
         val AppLanguage = stringPreferencesKey("app_language")
         val NotifyReturns = booleanPreferencesKey("notify_returns")
         val NotifyLeavingSoon = booleanPreferencesKey("notify_leaving_soon")
+        val NotificationPermissionRequested = booleanPreferencesKey("notification_permission_requested")
         val Wishlist = stringSetPreferencesKey("wishlist")
         val NotifiedReturnIds = stringSetPreferencesKey("notified_return_ids")
         val NotifiedLeavingTokens = stringSetPreferencesKey("notified_leaving_tokens")

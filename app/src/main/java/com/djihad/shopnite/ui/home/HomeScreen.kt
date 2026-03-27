@@ -310,6 +310,15 @@ private fun NewsFeedCard(card: NewsCard) {
                     text = card.title,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+                if (card.body.isNotBlank()) {
+                    Text(
+                        text = card.body,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.92f),
+                        maxLines = 4,
+                    )
                 )
             }
         }

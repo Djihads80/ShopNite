@@ -38,13 +38,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.djihad.shopnite.R
-import com.djihad.shopnite.data.local.DEFAULT_FORTNITE_API_KEY
 import com.djihad.shopnite.model.AccountType
 import com.djihad.shopnite.model.LanguageOption
 import com.djihad.shopnite.model.SupportedLanguages
@@ -62,12 +61,11 @@ fun SettingsScreen(
     onOpenCredits: () -> Unit,
 ) {
     val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
     val notificationLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) { }
 
-    var apiKey by rememberSaveable(uiState.settings.apiKey) { mutableStateOf(uiState.settings.apiKey) }
+    var apiKey by rememberSaveable(uiState.settings.customApiKey) { mutableStateOf(uiState.settings.customApiKey) }
     var playerName by rememberSaveable(uiState.settings.playerName) { mutableStateOf(uiState.settings.playerName) }
     var accountTypeValue by rememberSaveable(uiState.settings.accountType.apiValue) {
         mutableStateOf(uiState.settings.accountType.apiValue)
@@ -85,8 +83,8 @@ fun SettingsScreen(
         onValidateAndSaveProfile(apiKey, playerName, accountType)
     }
 
-    LaunchedEffect(apiKey, uiState.settings.apiKey) {
-        if (apiKey.trim() == uiState.settings.apiKey) {
+    LaunchedEffect(apiKey, uiState.settings.customApiKey) {
+        if (apiKey.trim() == uiState.settings.customApiKey.trim()) {
             return@LaunchedEffect
         }
         delay(400)
@@ -239,13 +237,14 @@ fun SettingsScreen(
                     label = { Text(stringResource(R.string.settings_api_key_label)) },
                     supportingText = {
                         Text(
-                            if (apiKey.trim() == DEFAULT_FORTNITE_API_KEY) {
+                            if (apiKey.trim().isBlank()) {
                                 stringResource(R.string.settings_api_key_default)
                             } else {
                                 stringResource(R.string.settings_api_key_custom)
                             },
                         )
                     },
+                    visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
                 )
             }
@@ -263,12 +262,6 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(stringResource(R.string.common_open_credits))
-                }
-                OutlinedButton(
-                    onClick = { uriHandler.openUri("https://fortnite-api.com/") },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.common_open_fortnite_api))
                 }
             }
         }

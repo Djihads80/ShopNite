@@ -144,6 +144,8 @@ enum class CosmeticSource {
 
 object CosmeticFilters {
     const val All = "All"
+    const val New = "New"
+    const val Wishlist = "Wishlist"
 
     private val ordered = listOf(
         "Outfits",
