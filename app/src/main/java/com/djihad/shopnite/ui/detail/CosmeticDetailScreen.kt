@@ -127,7 +127,7 @@ private fun CosmeticDetailContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(320.dp)
-                            .background(Brush.verticalGradient(gradient)),
+                            .background(Brush.verticalGradient(gradient))
                     ) {
                         AsyncImage(
                             model = cosmetic.imageUrl,

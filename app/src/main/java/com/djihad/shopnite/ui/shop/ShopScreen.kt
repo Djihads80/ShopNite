@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -129,7 +128,7 @@ private fun ShopTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(190.dp)
-                    .background(Brush.verticalGradient(gradient)),
+                    .background(Brush.verticalGradient(gradient))
                     .padding(12.dp),
             ) {
                 AsyncImage(
