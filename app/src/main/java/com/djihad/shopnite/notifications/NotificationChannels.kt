@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 
 object NotificationChannels {
+    const val ShopReset = "shop_reset"
     const val WishlistReturns = "wishlist_returns"
     const val LeavingSoon = "leaving_soon"
 
@@ -15,6 +16,13 @@ object NotificationChannels {
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannels(
             listOf(
+                NotificationChannel(
+                    ShopReset,
+                    "Shop reset",
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                ).apply {
+                    description = "Alerts when the Fortnite item shop resets."
+                },
                 NotificationChannel(
                     WishlistReturns,
                     "Wishlist returns",

@@ -50,10 +50,11 @@
     <string name="settings_notify_leaving_title">Leaving shop soon</string>
     <string name="settings_notify_leaving_subtitle">Notify when a wishlisted item is about to leave the live shop.</string>
     <string name="settings_api_key_title">Advanced API key override</string>
-    <string name="settings_api_key_support">A default Fortnite-API key is already included. Only change this if you want to use your own key.</string>
+    <string name="settings_api_key_support">Add your own Fortnite-API key here, or provide one at build time for your local build.</string>
     <string name="settings_api_key_label">Fortnite API key</string>
-    <string name="settings_api_key_default">Using the built-in default key.</string>
-    <string name="settings_api_key_custom">Custom key override enabled.</string>
+    <string name="settings_api_key_default">Using the build-time API key.</string>
+    <string name="settings_api_key_custom">Using the API key entered above.</string>
+    <string name="settings_api_key_missing">No Fortnite-API key is configured yet.</string>
     <string name="settings_credits_title">Credits</string>
     <string name="settings_credits_body">Developer credits, Fortnite-API and open source licenses</string>
     <string name="credits_title">Credits</string>

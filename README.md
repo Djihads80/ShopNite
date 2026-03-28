@@ -39,6 +39,32 @@ git clone https://github.com/Djihads80/ShopNite.git
 cd ShopNite
 ```
 
+### Firebase push setup
+
+Firebase Cloud Messaging is optional, but the app now expects a local `app/google-services.json` file if you want the Firebase-enabled build.
+
+1. Create your own Firebase project and add an Android app with package name `com.djihad.shopnite`
+2. Download `google-services.json`
+3. Place it at `app/google-services.json`
+
+
+### Fortnite-API key setup
+
+Get a key from https://dash.fortnite-api.com/account by logging in with your Discord account and following the instructions
+
+The easiest local setup is to add your key to `local.properties`:
+
+```properties
+sdk.dir=/path/to/your/android/sdk
+fortniteApiKey=your-fortnite-api-key
+```
+
+You can also provide it through an environment variable when building:
+
+```bash
+FORTNITE_API_KEY=your-fortnite-api-key ./gradlew assembleDebug
+```
+
 ### Build using Gradle (CLI)
 
 #### Debug APK

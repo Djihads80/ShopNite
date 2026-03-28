@@ -237,10 +237,12 @@ fun SettingsScreen(
                     label = { Text(stringResource(R.string.settings_api_key_label)) },
                     supportingText = {
                         Text(
-                            if (apiKey.trim().isBlank()) {
+                            if (apiKey.trim().isNotBlank()) {
+                                stringResource(R.string.settings_api_key_custom)
+                            } else if (uiState.settings.apiKey.trim().isNotBlank()) {
                                 stringResource(R.string.settings_api_key_default)
                             } else {
-                                stringResource(R.string.settings_api_key_custom)
+                                stringResource(R.string.settings_api_key_missing)
                             },
                         )
                     },

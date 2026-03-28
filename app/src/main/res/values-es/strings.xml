@@ -50,10 +50,11 @@
     <string name="settings_notify_leaving_title">Sale pronto de la tienda</string>
     <string name="settings_notify_leaving_subtitle">Notifica cuando un item de tu lista este a punto de salir de la tienda.</string>
     <string name="settings_api_key_title">API key avanzada</string>
-    <string name="settings_api_key_support">Ya se incluye una API key por defecto de Fortnite-API. Cambiala solo si quieres usar la tuya.</string>
+    <string name="settings_api_key_support">Agrega aqui tu propia Fortnite-API key, o aporta una en tiempo de compilacion para tu build local.</string>
     <string name="settings_api_key_label">Fortnite API key</string>
-    <string name="settings_api_key_default">Usando la key por defecto integrada.</string>
-    <string name="settings_api_key_custom">Override de key personalizada activado.</string>
+    <string name="settings_api_key_default">Usando la key configurada en la compilacion.</string>
+    <string name="settings_api_key_custom">Usando la key escrita arriba.</string>
+    <string name="settings_api_key_missing">Todavia no hay ninguna Fortnite-API key configurada.</string>
     <string name="settings_credits_title">Creditos</string>
     <string name="settings_credits_body">Los creditos de Fortnite-API y las licencias open source viven ahora en su propia pagina.</string>
     <string name="credits_title">Creditos</string>

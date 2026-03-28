@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.djihad.shopnite.BuildConfig
 import com.djihad.shopnite.model.AccountType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -16,10 +17,8 @@ import java.io.IOException
 
 private val Context.userSettingsDataStore by preferencesDataStore(name = "shopnite_user_settings")
 
-const val DEFAULT_FORTNITE_API_KEY = "df018965-d546-4984-92ed-7dd3171af366"
-
 data class UserSettings(
-    val apiKey: String = DEFAULT_FORTNITE_API_KEY,
+    val apiKey: String = defaultFortniteApiKey(),
     val customApiKey: String = "",
     val playerName: String = "",
     val accountType: AccountType = AccountType.Epic,
@@ -108,7 +107,7 @@ class UserSettingsRepository(private val context: Context) {
     }
 
     private fun toUserSettings(preferences: Preferences): UserSettings = UserSettings(
-        apiKey = preferences[Keys.ApiKey]?.takeIf { it.isNotBlank() } ?: DEFAULT_FORTNITE_API_KEY,
+        apiKey = preferences[Keys.ApiKey]?.takeIf { it.isNotBlank() } ?: defaultFortniteApiKey(),
         customApiKey = preferences[Keys.ApiKey].orEmpty(),
         playerName = preferences[Keys.PlayerName].orEmpty(),
         accountType = AccountType.fromApiValue(preferences[Keys.AccountType]),
@@ -136,3 +135,5 @@ class UserSettingsRepository(private val context: Context) {
         val NotifiedLeavingTokens = stringSetPreferencesKey("notified_leaving_tokens")
     }
 }
+
+private fun defaultFortniteApiKey(): String = BuildConfig.FORTNITE_API_KEY.trim()

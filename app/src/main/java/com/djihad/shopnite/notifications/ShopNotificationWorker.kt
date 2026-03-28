@@ -1,18 +1,12 @@
 package com.djihad.shopnite.notifications
 
 import android.Manifest
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.djihad.shopnite.MainActivity
-import com.djihad.shopnite.R
 import com.djihad.shopnite.ShopNiteApplication
 import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.util.Formatters
@@ -33,6 +27,7 @@ class ShopNotificationWorker(
         if (!hasNotificationPermission()) return Result.success()
 
         return runCatching {
+            NotificationChannels.create(applicationContext)
             val shop = repository.getWishlistMatches(settings.apiLanguageTag, settings.wishlist)
             val currentIds = shop.items.map { it.cosmeticId }.toSet()
 
@@ -92,28 +87,12 @@ class ShopNotificationWorker(
             items.take(3).joinToString(separator = "\n") { bodyMapper(it) }
         }
 
-        val notification = NotificationCompat.Builder(applicationContext, channelId)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(title)
-            .setContentText(body.lines().firstOrNull().orEmpty())
-            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .setContentIntent(openAppPendingIntent())
-            .build()
-
-        NotificationManagerCompat.from(applicationContext).notify(notificationId, notification)
-    }
-
-    private fun openAppPendingIntent(): PendingIntent {
-        val intent = Intent(applicationContext, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        return PendingIntent.getActivity(
-            applicationContext,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        NotificationSupport.showTextNotification(
+            context = applicationContext,
+            channelId = channelId,
+            notificationId = notificationId,
+            title = title,
+            body = body,
         )
     }
 

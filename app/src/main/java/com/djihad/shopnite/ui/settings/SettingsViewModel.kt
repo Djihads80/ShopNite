@@ -2,7 +2,7 @@ package com.djihad.shopnite.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.djihad.shopnite.data.local.DEFAULT_FORTNITE_API_KEY
+import com.djihad.shopnite.BuildConfig
 import com.djihad.shopnite.data.local.UserSettings
 import com.djihad.shopnite.data.local.UserSettingsRepository
 import com.djihad.shopnite.data.repository.FortniteRepository
@@ -42,6 +42,7 @@ class SettingsViewModel(
         accountType: AccountType,
     ) {
         val trimmedName = name.trim()
+        val effectiveApiKey = apiKey.trim().ifBlank { BuildConfig.FORTNITE_API_KEY.trim() }
         if (trimmedName.isBlank()) {
             viewModelScope.launch {
                 settingsRepository.saveProfile("", accountType)
@@ -51,6 +52,16 @@ class SettingsViewModel(
                         profileValidationMessage = null,
                     )
                 }
+            }
+            return
+        }
+
+        if (effectiveApiKey.isBlank()) {
+            _uiState.update {
+                it.copy(
+                    isValidatingProfile = false,
+                    profileValidationMessage = "Add a Fortnite-API key below to validate that player profile.",
+                )
             }
             return
         }
@@ -65,7 +76,7 @@ class SettingsViewModel(
 
             runCatching {
                 repository.getBattleRoyaleSummary(
-                    apiKey = apiKey.trim().ifBlank { DEFAULT_FORTNITE_API_KEY },
+                    apiKey = effectiveApiKey,
                     playerName = trimmedName,
                     accountType = accountType,
                 )
