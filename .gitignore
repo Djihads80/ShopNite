@@ -5,5 +5,6 @@ local.properties
 /build
 /captures
 /.externalNativeBuild
+/.gradle-user-home
 /.cxx
 app/build
