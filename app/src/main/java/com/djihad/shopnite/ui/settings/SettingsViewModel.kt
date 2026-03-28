@@ -114,10 +114,6 @@ class SettingsViewModel(
         viewModelScope.launch { settingsRepository.saveApiLanguage(tag) }
     }
 
-    fun saveAppLanguage(tag: String) {
-        viewModelScope.launch { settingsRepository.saveAppLanguage(tag) }
-    }
-
     fun updateNotificationPreferences(
         notifyReturns: Boolean? = null,
         notifyLeavingSoon: Boolean? = null,

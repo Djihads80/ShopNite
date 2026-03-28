@@ -64,9 +64,10 @@ class CosmeticDetailViewModel(
         NotificationChannels.create(app.applicationContext)
         ShopItemNotifications.showDebugWishlistReturn(
             context = app.applicationContext,
-            cosmeticId = detail.cosmetic.id,
             cosmeticName = detail.cosmetic.name,
+            cosmeticType = detail.cosmetic.typeLabel,
             price = detail.currentShopItem?.price,
+            outDate = detail.currentShopItem?.outDate,
         )
     }
 

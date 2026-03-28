@@ -7,6 +7,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -60,11 +66,8 @@ fun SettingsScreen(
     onSaveApiKey: (String) -> Unit,
     onValidateAndSaveProfile: (String, String, AccountType) -> Unit,
     onSaveApiLanguage: (String) -> Unit,
-    onSaveAppLanguage: (String) -> Unit,
     onUpdateNotifications: (Boolean?, Boolean?) -> Unit,
-    onForceSendWishlistNotification: () -> Unit,
-    onForceSendWishlistLeavingNotification: () -> Unit,
-    onSetForceCosmeticNotificationButtonEnabled: (Boolean) -> Unit,
+    onOpenDebugOps: () -> Unit,
     onOpenCredits: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -111,7 +114,10 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsCard(title = stringResource(R.string.settings_profile_title)) {
+            SettingsCard(
+                title = stringResource(R.string.settings_profile_title),
+                icon = Icons.Filled.Person,
+            ) {
                 Text(
                     text = stringResource(R.string.settings_profile_body),
                     style = MaterialTheme.typography.bodyMedium,
@@ -178,6 +184,7 @@ fun SettingsScreen(
         item {
             LanguageCard(
                 title = stringResource(R.string.settings_api_language_title),
+                icon = Icons.Filled.Language,
                 supporting = stringResource(R.string.settings_api_language_support),
                 current = SupportedLanguages.api.firstOrNull { it.tag == uiState.settings.apiLanguageTag }
                     ?: SupportedLanguages.api.first(),
@@ -187,18 +194,10 @@ fun SettingsScreen(
         }
 
         item {
-            LanguageCard(
-                title = stringResource(R.string.settings_app_language_title),
-                supporting = stringResource(R.string.settings_app_language_support),
-                current = SupportedLanguages.app.firstOrNull { it.tag == uiState.settings.appLanguageTag }
-                    ?: SupportedLanguages.app.first(),
-                options = SupportedLanguages.app,
-                onSelect = { onSaveAppLanguage(it.tag) },
-            )
-        }
-
-        item {
-            SettingsCard(title = stringResource(R.string.settings_notifications_title)) {
+            SettingsCard(
+                title = stringResource(R.string.settings_notifications_title),
+                icon = Icons.Filled.Notifications,
+            ) {
                 NotificationToggleRow(
                     title = stringResource(R.string.settings_notify_returns_title),
                     subtitle = stringResource(R.string.settings_notify_returns_subtitle),
@@ -231,7 +230,10 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsCard(title = stringResource(R.string.settings_api_key_title)) {
+            SettingsCard(
+                title = stringResource(R.string.settings_api_key_title),
+                icon = Icons.Filled.Key,
+            ) {
                 Text(
                     text = stringResource(R.string.settings_api_key_support),
                     style = MaterialTheme.typography.bodyMedium,
@@ -271,41 +273,20 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     OutlinedButton(
-                        onClick = {
-                            maybeRequestNotificationsPermission(
-                                context = context,
-                                onNeedRequest = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
-                            )
-                            onForceSendWishlistNotification()
-                        },
+                        onClick = onOpenDebugOps,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(stringResource(R.string.settings_debug_force_returns))
+                        Text(stringResource(R.string.settings_debug_open))
                     }
-                    OutlinedButton(
-                        onClick = {
-                            maybeRequestNotificationsPermission(
-                                context = context,
-                                onNeedRequest = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
-                            )
-                            onForceSendWishlistLeavingNotification()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(stringResource(R.string.settings_debug_force_leaving))
-                    }
-                    NotificationToggleRow(
-                        title = stringResource(R.string.settings_debug_force_cosmetic_title),
-                        subtitle = stringResource(R.string.settings_debug_force_cosmetic_subtitle),
-                        checked = uiState.settings.debugForceCosmeticNotificationButtonEnabled,
-                        onCheckedChange = onSetForceCosmeticNotificationButtonEnabled,
-                    )
                 }
             }
         }
 
         item {
-            SettingsCard(title = stringResource(R.string.settings_credits_title)) {
+            SettingsCard(
+                title = stringResource(R.string.settings_credits_title),
+                icon = Icons.Filled.Info,
+            ) {
                 Text(
                     text = stringResource(R.string.settings_credits_body),
                     style = MaterialTheme.typography.bodyMedium,
@@ -369,6 +350,7 @@ private fun SettingsCard(
 @Composable
 private fun LanguageCard(
     title: String,
+    icon: ImageVector,
     supporting: String,
     current: LanguageOption,
     options: List<LanguageOption>,
@@ -376,7 +358,7 @@ private fun LanguageCard(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    SettingsCard(title = title) {
+    SettingsCard(title = title, icon = icon) {
         Text(
             text = supporting,
             style = MaterialTheme.typography.bodyMedium,

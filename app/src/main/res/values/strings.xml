@@ -35,7 +35,7 @@
     <string name="cosmetic_detail_debug_title">Debug ops</string>
     <string name="cosmetic_detail_debug_body">Force a wishlist-return notification for this cosmetic, even if it is not currently in the live shop.</string>
     <string name="cosmetic_detail_debug_action">Force wishlist notification</string>
-    <string name="settings_supporting">Player profile, languages, notifications, and app info.</string>
+    <string name="settings_supporting">Player profile, language, notifications, and app info.</string>
     <string name="settings_profile_title">Player profile</string>
     <string name="settings_profile_body">Your username and platform are saved automatically after Fortnite-API validates them.</string>
     <string name="settings_profile_label">Fortnite username</string>
@@ -53,7 +53,8 @@
     <string name="settings_notify_leaving_title">Leaving shop soon</string>
     <string name="settings_notify_leaving_subtitle">Notify when a wishlisted item is about to leave the live shop.</string>
     <string name="settings_debug_title">Debug ops</string>
-    <string name="settings_debug_body">Test the app notification flow and reveal cosmetic-level debug controls.</string>
+    <string name="settings_debug_body">Internal tools for testing notification flows and cosmetic-level debug controls.</string>
+    <string name="settings_debug_open">Open debug ops</string>
     <string name="settings_debug_force_returns">Force send wishlist notification</string>
     <string name="settings_debug_force_leaving">Force send wishlist leaving notification</string>
     <string name="settings_debug_force_cosmetic_title">Enable cosmetic debug button</string>
@@ -72,8 +73,6 @@
     <string name="licenses_title">Open source licenses</string>
     <string name="licenses_notice">See each project repository for the full license text and notices.</string>
     <string name="credits_version_title">Version info</string>
-    <string name="credits_version_body">Tap this card seven times to unlock debug ops.</string>
+    <string name="credits_version_body">Release version and build number.</string>
     <string name="credits_version_value">Version %1$s (%2$d)</string>
-    <string name="credits_version_tap_hint">%1$d taps left to unlock debug ops.</string>
-    <string name="credits_debug_unlocked">Debug ops unlocked.</string>
 </resources>

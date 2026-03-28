@@ -16,10 +16,13 @@ object ShopItemNotifications {
                 channelId = NotificationChannels.WishlistReturns,
                 uniqueKey = item.cosmeticId,
             ),
-            title = "Wishlist return",
-            body = wishlistReturnBody(
+            title = wishlistReturnTitle(
                 cosmeticName = item.name,
+                cosmeticType = item.typeLabel,
+            ),
+            body = wishlistNotificationBody(
                 price = item.price,
+                outDate = item.outDate,
             ),
         )
     }
@@ -35,9 +38,12 @@ object ShopItemNotifications {
                 channelId = NotificationChannels.LeavingSoon,
                 uniqueKey = item.cosmeticId,
             ),
-            title = "Leaving the shop soon",
-            body = wishlistLeavingSoonBody(
+            title = wishlistLeavingSoonTitle(
                 cosmeticName = item.name,
+                cosmeticType = item.typeLabel,
+            ),
+            body = wishlistNotificationBody(
+                price = item.price,
                 outDate = item.outDate,
             ),
         )
@@ -45,35 +51,43 @@ object ShopItemNotifications {
 
     fun showDebugWishlistReturn(
         context: Context,
-        cosmeticId: String,
         cosmeticName: String,
+        cosmeticType: String,
         price: Int? = null,
+        outDate: String? = null,
     ) {
         NotificationSupport.showTextNotification(
             context = context,
             channelId = NotificationChannels.WishlistReturns,
             notificationId = NotificationSupport.nextEphemeralNotificationId(),
-            title = "Wishlist return",
-            body = wishlistReturnBody(
+            title = wishlistReturnTitle(
                 cosmeticName = cosmeticName,
+                cosmeticType = cosmeticType,
+            ),
+            body = wishlistNotificationBody(
                 price = price,
+                outDate = outDate,
             ),
         )
     }
 
     fun showDebugWishlistLeavingSoon(
         context: Context,
-        cosmeticId: String,
         cosmeticName: String,
+        cosmeticType: String,
+        price: Int? = null,
         outDate: String? = null,
     ) {
         NotificationSupport.showTextNotification(
             context = context,
             channelId = NotificationChannels.LeavingSoon,
             notificationId = NotificationSupport.nextEphemeralNotificationId(),
-            title = "Leaving the shop soon",
-            body = wishlistLeavingSoonBody(
+            title = wishlistLeavingSoonTitle(
                 cosmeticName = cosmeticName,
+                cosmeticType = cosmeticType,
+            ),
+            body = wishlistNotificationBody(
+                price = price,
                 outDate = outDate,
             ),
         )
@@ -84,8 +98,11 @@ object ShopItemNotifications {
             context = context,
             channelId = NotificationChannels.WishlistReturns,
             notificationId = NotificationSupport.nextEphemeralNotificationId(),
-            title = "Wishlist return",
-            body = "A wishlist item is back in the shop.",
+            title = "Wishlist item returned",
+            body = wishlistNotificationBody(
+                price = null,
+                outDate = null,
+            ),
         )
     }
 
@@ -94,26 +111,30 @@ object ShopItemNotifications {
             context = context,
             channelId = NotificationChannels.LeavingSoon,
             notificationId = NotificationSupport.nextEphemeralNotificationId(),
-            title = "Leaving the shop soon",
-            body = "A wishlist item is leaving the shop soon.",
+            title = "Wishlist item is leaving soon!",
+            body = wishlistNotificationBody(
+                price = null,
+                outDate = null,
+            ),
         )
     }
 
-    private fun wishlistReturnBody(
+    private fun wishlistReturnTitle(
         cosmeticName: String,
-        price: Int?,
-    ): String = if (price != null) {
-        "$cosmeticName is back for ${Formatters.formatPrice(price)} V-Bucks."
-    } else {
-        "$cosmeticName is back in the shop."
-    }
+        cosmeticType: String,
+    ): String = "$cosmeticName (${cosmeticType.ifBlank { "Cosmetic" }}) returned"
 
-    private fun wishlistLeavingSoonBody(
+    private fun wishlistLeavingSoonTitle(
         cosmeticName: String,
+        cosmeticType: String,
+    ): String = "$cosmeticName (${cosmeticType.ifBlank { "Cosmetic" }}) is leaving soon!"
+
+    private fun wishlistNotificationBody(
+        price: Int?,
         outDate: String?,
-    ): String = Formatters.formatTimeLeft(outDate)
-        ?.lowercase()
-        ?.takeIf { it.isNotBlank() }
-        ?.let { timeLeft -> "$cosmeticName $timeLeft." }
-        ?: "$cosmeticName is leaving the shop soon."
+    ): String {
+        val priceText = price?.let { "${Formatters.formatPrice(it)} V-Bucks" } ?: "Price unavailable"
+        val leaveDateText = Formatters.formatDateTime(outDate) ?: "Unknown"
+        return "$priceText | Leaves $leaveDateText"
+    }
 }

@@ -77,12 +77,6 @@ private fun CreditsContent(
 ) {
     val uriHandler = LocalUriHandler.current
     var versionTapCount by rememberSaveable { mutableStateOf(0) }
-    val tapsRemaining = (7 - versionTapCount).coerceAtLeast(0)
-    val versionSupporting = when {
-        debugMenuUnlocked -> stringResource(R.string.credits_debug_unlocked)
-        versionTapCount > 0 -> stringResource(R.string.credits_version_tap_hint, tapsRemaining)
-        else -> stringResource(R.string.credits_version_body)
-    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -155,7 +149,7 @@ private fun CreditsContent(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = versionSupporting,
+                    text = stringResource(R.string.credits_version_body),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -171,7 +165,7 @@ private fun CreditsCard(
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
         ),

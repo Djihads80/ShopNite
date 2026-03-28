@@ -43,6 +43,7 @@ import com.djihad.shopnite.ui.detail.CosmeticDetailViewModel
 import com.djihad.shopnite.ui.home.HomeScreen
 import com.djihad.shopnite.ui.home.HomeViewModel
 import com.djihad.shopnite.ui.settings.CreditsScreen
+import com.djihad.shopnite.ui.settings.DebugOpsScreen
 import com.djihad.shopnite.ui.settings.SettingsScreen
 import com.djihad.shopnite.ui.settings.SettingsViewModel
 import com.djihad.shopnite.ui.shop.ShopScreen
@@ -66,6 +67,7 @@ private val topDestinations = listOf(
 
 private const val cosmeticDetailPattern = "cosmetic/{cosmeticId}"
 private const val creditsRoute = "settings/credits"
+private const val debugOpsRoute = "settings/debug"
 
 fun cosmeticDetailRoute(cosmeticId: String): String = "cosmetic/${Uri.encode(cosmeticId)}"
 
@@ -189,11 +191,8 @@ fun ShopNiteApp() {
                     onSaveApiKey = viewModel::saveApiKey,
                     onValidateAndSaveProfile = viewModel::validateAndSaveProfile,
                     onSaveApiLanguage = viewModel::saveApiLanguage,
-                    onSaveAppLanguage = viewModel::saveAppLanguage,
                     onUpdateNotifications = viewModel::updateNotificationPreferences,
-                    onForceSendWishlistNotification = viewModel::forceSendWishlistNotification,
-                    onForceSendWishlistLeavingNotification = viewModel::forceSendWishlistLeavingNotification,
-                    onSetForceCosmeticNotificationButtonEnabled = viewModel::setForceCosmeticNotificationButtonEnabled,
+                    onOpenDebugOps = { navController.navigate(debugOpsRoute) },
                     onOpenCredits = { navController.navigate(creditsRoute) },
                 )
             }
@@ -204,6 +203,23 @@ fun ShopNiteApp() {
                     onBack = { navController.popBackStack() },
                     debugMenuUnlocked = state.settings.debugMenuUnlocked,
                     onUnlockDebugMenu = viewModel::unlockDebugMenu,
+                )
+            }
+            composable(debugOpsRoute) {
+                val viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+                val state by viewModel.uiState.collectAsStateWithLifecycle()
+                DebugOpsScreen(
+                    forceCosmeticNotificationButtonEnabled = state.settings.debugForceCosmeticNotificationButtonEnabled,
+                    onBack = { navController.popBackStack() },
+                    onForceSendWishlistNotification = {
+                        requestNotificationsPermission(markPrompted = false)
+                        viewModel.forceSendWishlistNotification()
+                    },
+                    onForceSendWishlistLeavingNotification = {
+                        requestNotificationsPermission(markPrompted = false)
+                        viewModel.forceSendWishlistLeavingNotification()
+                    },
+                    onSetForceCosmeticNotificationButtonEnabled = viewModel::setForceCosmeticNotificationButtonEnabled,
                 )
             }
             composable(

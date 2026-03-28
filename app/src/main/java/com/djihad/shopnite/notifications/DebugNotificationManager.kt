@@ -25,9 +25,10 @@ object DebugNotificationManager {
         matches.forEach { item ->
             ShopItemNotifications.showDebugWishlistReturn(
                 context = context,
-                cosmeticId = item.cosmeticId,
                 cosmeticName = item.name,
+                cosmeticType = item.typeLabel,
                 price = item.price,
+                outDate = item.outDate,
             )
         }
     }
@@ -52,8 +53,9 @@ object DebugNotificationManager {
         leavingSoon.forEach { item ->
             ShopItemNotifications.showDebugWishlistLeavingSoon(
                 context = context,
-                cosmeticId = item.cosmeticId,
                 cosmeticName = item.name,
+                cosmeticType = item.typeLabel,
+                price = item.price,
                 outDate = item.outDate,
             )
         }
