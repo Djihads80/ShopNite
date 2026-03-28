@@ -3,10 +3,12 @@ package com.djihad.shopnite.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.djihad.shopnite.BuildConfig
+import com.djihad.shopnite.ShopNiteApplication
 import com.djihad.shopnite.data.local.UserSettings
 import com.djihad.shopnite.data.local.UserSettingsRepository
 import com.djihad.shopnite.data.repository.FortniteRepository
 import com.djihad.shopnite.model.AccountType
+import com.djihad.shopnite.notifications.DebugNotificationManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +24,7 @@ data class SettingsUiState(
 )
 
 class SettingsViewModel(
+    private val app: ShopNiteApplication,
     private val repository: FortniteRepository,
     private val settingsRepository: UserSettingsRepository,
 ) : ViewModel() {
@@ -123,6 +126,38 @@ class SettingsViewModel(
             settingsRepository.saveNotificationPreferences(
                 notifyReturns = notifyReturns,
                 notifyLeavingSoon = notifyLeavingSoon,
+            )
+        }
+    }
+
+    fun unlockDebugMenu() {
+        viewModelScope.launch { settingsRepository.unlockDebugMenu() }
+    }
+
+    fun setForceCosmeticNotificationButtonEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.saveDebugPreferences(
+                forceCosmeticNotificationButtonEnabled = enabled,
+            )
+        }
+    }
+
+    fun forceSendWishlistNotification() {
+        viewModelScope.launch {
+            DebugNotificationManager.forceWishlistReturnNotifications(
+                context = app.applicationContext,
+                repository = repository,
+                settings = _uiState.value.settings,
+            )
+        }
+    }
+
+    fun forceSendWishlistLeavingNotification() {
+        viewModelScope.launch {
+            DebugNotificationManager.forceWishlistLeavingNotifications(
+                context = app.applicationContext,
+                repository = repository,
+                settings = _uiState.value.settings,
             )
         }
     }

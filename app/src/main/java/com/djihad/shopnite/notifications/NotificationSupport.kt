@@ -11,8 +11,13 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.djihad.shopnite.MainActivity
 import com.djihad.shopnite.R
+import java.util.concurrent.atomic.AtomicInteger
 
 object NotificationSupport {
+    private val ephemeralNotificationIds = AtomicInteger(
+        ((System.currentTimeMillis() and 0x7fffffffL).toInt()).coerceAtLeast(1),
+    )
+
     fun showTextNotification(
         context: Context,
         channelId: String,
@@ -42,6 +47,16 @@ object NotificationSupport {
             Manifest.permission.POST_NOTIFICATIONS,
         ) == PackageManager.PERMISSION_GRANTED
     }
+
+    fun stableNotificationId(
+        channelId: String,
+        uniqueKey: String,
+    ): Int = (("$channelId:$uniqueKey").hashCode().toLong() and 0x7fffffffL).toInt()
+
+    fun nextEphemeralNotificationId(): Int =
+        ephemeralNotificationIds.getAndUpdate { current ->
+            if (current >= Int.MAX_VALUE - 1) 1 else current + 1
+        }
 
     private fun openAppPendingIntent(context: Context): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {

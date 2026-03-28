@@ -191,12 +191,19 @@ fun ShopNiteApp() {
                     onSaveApiLanguage = viewModel::saveApiLanguage,
                     onSaveAppLanguage = viewModel::saveAppLanguage,
                     onUpdateNotifications = viewModel::updateNotificationPreferences,
+                    onForceSendWishlistNotification = viewModel::forceSendWishlistNotification,
+                    onForceSendWishlistLeavingNotification = viewModel::forceSendWishlistLeavingNotification,
+                    onSetForceCosmeticNotificationButtonEnabled = viewModel::setForceCosmeticNotificationButtonEnabled,
                     onOpenCredits = { navController.navigate(creditsRoute) },
                 )
             }
             composable(creditsRoute) {
+                val viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+                val state by viewModel.uiState.collectAsStateWithLifecycle()
                 CreditsScreen(
                     onBack = { navController.popBackStack() },
+                    debugMenuUnlocked = state.settings.debugMenuUnlocked,
+                    onUnlockDebugMenu = viewModel::unlockDebugMenu,
                 )
             }
             composable(
@@ -213,6 +220,10 @@ fun ShopNiteApp() {
                             requestNotificationsPermission(markPrompted = false)
                         }
                         viewModel.toggleWishlist()
+                    },
+                    onForceDebugWishlistNotification = {
+                        requestNotificationsPermission(markPrompted = false)
+                        viewModel.forceSendWishlistNotification()
                     },
                 )
             }

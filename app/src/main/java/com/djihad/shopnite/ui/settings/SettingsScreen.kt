@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +61,9 @@ fun SettingsScreen(
     onSaveApiLanguage: (String) -> Unit,
     onSaveAppLanguage: (String) -> Unit,
     onUpdateNotifications: (Boolean?, Boolean?) -> Unit,
+    onForceSendWishlistNotification: () -> Unit,
+    onForceSendWishlistLeavingNotification: () -> Unit,
+    onSetForceCosmeticNotificationButtonEnabled: (Boolean) -> Unit,
     onOpenCredits: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -252,6 +258,51 @@ fun SettingsScreen(
             }
         }
 
+        if (uiState.settings.debugMenuUnlocked) {
+            item {
+                SettingsCard(
+                    title = stringResource(R.string.settings_debug_title),
+                    icon = Icons.Filled.BugReport,
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_debug_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            maybeRequestNotificationsPermission(
+                                context = context,
+                                onNeedRequest = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                            )
+                            onForceSendWishlistNotification()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.settings_debug_force_returns))
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            maybeRequestNotificationsPermission(
+                                context = context,
+                                onNeedRequest = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                            )
+                            onForceSendWishlistLeavingNotification()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.settings_debug_force_leaving))
+                    }
+                    NotificationToggleRow(
+                        title = stringResource(R.string.settings_debug_force_cosmetic_title),
+                        subtitle = stringResource(R.string.settings_debug_force_cosmetic_subtitle),
+                        checked = uiState.settings.debugForceCosmeticNotificationButtonEnabled,
+                        onCheckedChange = onSetForceCosmeticNotificationButtonEnabled,
+                    )
+                }
+            }
+        }
+
         item {
             SettingsCard(title = stringResource(R.string.settings_credits_title)) {
                 Text(
@@ -273,6 +324,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingsCard(
     title: String,
+    icon: ImageVector? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
@@ -285,11 +337,29 @@ private fun SettingsCard(
             modifier = Modifier.padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
+            if (icon == null) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            } else {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
             content()
         }
     }

@@ -4,9 +4,12 @@ import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.djihad.shopnite.ShopNiteApplication
 import com.djihad.shopnite.data.local.UserSettingsRepository
 import com.djihad.shopnite.data.repository.FortniteRepository
 import com.djihad.shopnite.model.CosmeticDetail
+import com.djihad.shopnite.notifications.NotificationChannels
+import com.djihad.shopnite.notifications.ShopItemNotifications
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,12 +19,14 @@ import kotlinx.coroutines.launch
 data class CosmeticDetailUiState(
     val detail: CosmeticDetail? = null,
     val isWishlisted: Boolean = false,
+    val showForceNotificationDebugButton: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )
 
 class CosmeticDetailViewModel(
     savedStateHandle: SavedStateHandle,
+    private val app: ShopNiteApplication,
     private val repository: FortniteRepository,
     private val settingsRepository: UserSettingsRepository,
 ) : ViewModel() {
@@ -34,7 +39,12 @@ class CosmeticDetailViewModel(
     init {
         viewModelScope.launch {
             settingsRepository.settings.collect { settings ->
-                _uiState.update { it.copy(isWishlisted = cosmeticId in settings.wishlist) }
+                _uiState.update {
+                    it.copy(
+                        isWishlisted = cosmeticId in settings.wishlist,
+                        showForceNotificationDebugButton = settings.debugForceCosmeticNotificationButtonEnabled,
+                    )
+                }
                 if (loadedLanguage != settings.apiLanguageTag) {
                     loadedLanguage = settings.apiLanguageTag
                     refresh(settings.apiLanguageTag)
@@ -47,6 +57,17 @@ class CosmeticDetailViewModel(
         viewModelScope.launch {
             settingsRepository.toggleWishlist(cosmeticId)
         }
+    }
+
+    fun forceSendWishlistNotification() {
+        val detail = _uiState.value.detail ?: return
+        NotificationChannels.create(app.applicationContext)
+        ShopItemNotifications.showDebugWishlistReturn(
+            context = app.applicationContext,
+            cosmeticId = detail.cosmetic.id,
+            cosmeticName = detail.cosmetic.name,
+            price = detail.currentShopItem?.price,
+        )
     }
 
     private fun refresh(language: String) {

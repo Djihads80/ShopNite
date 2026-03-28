@@ -1,5 +1,6 @@
 package com.djihad.shopnite.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
@@ -31,12 +36,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.djihad.shopnite.BuildConfig
 import com.djihad.shopnite.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreditsScreen(
     onBack: () -> Unit,
+    debugMenuUnlocked: Boolean,
+    onUnlockDebugMenu: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -55,6 +63,8 @@ fun CreditsScreen(
     ) { innerPadding ->
         CreditsContent(
             modifier = Modifier.padding(innerPadding),
+            debugMenuUnlocked = debugMenuUnlocked,
+            onUnlockDebugMenu = onUnlockDebugMenu,
         )
     }
 }
@@ -62,8 +72,17 @@ fun CreditsScreen(
 @Composable
 private fun CreditsContent(
     modifier: Modifier = Modifier,
+    debugMenuUnlocked: Boolean,
+    onUnlockDebugMenu: () -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
+    var versionTapCount by rememberSaveable { mutableStateOf(0) }
+    val tapsRemaining = (7 - versionTapCount).coerceAtLeast(0)
+    val versionSupporting = when {
+        debugMenuUnlocked -> stringResource(R.string.credits_debug_unlocked)
+        versionTapCount > 0 -> stringResource(R.string.credits_version_tap_hint, tapsRemaining)
+        else -> stringResource(R.string.credits_version_body)
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -110,16 +129,49 @@ private fun CreditsContent(
                 )
             }
         }
+
+        item {
+            CreditsCard(
+                title = stringResource(R.string.credits_version_title),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (!debugMenuUnlocked) {
+                            val nextTapCount = (versionTapCount + 1).coerceAtMost(7)
+                            versionTapCount = nextTapCount
+                            if (nextTapCount >= 7) {
+                                onUnlockDebugMenu()
+                            }
+                        }
+                    },
+            ) {
+                Text(
+                    text = stringResource(
+                        R.string.credits_version_value,
+                        BuildConfig.VERSION_NAME,
+                        BuildConfig.VERSION_CODE,
+                    ),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = versionSupporting,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun CreditsCard(
     title: String,
+    modifier: Modifier = Modifier,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
         ),

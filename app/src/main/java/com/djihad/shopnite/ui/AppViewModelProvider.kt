@@ -36,6 +36,7 @@ object AppViewModelProvider {
         }
         initializer {
             SettingsViewModel(
+                shopNiteApplication(),
                 shopNiteApplication().appContainer.fortniteRepository,
                 shopNiteApplication().appContainer.userSettingsRepository,
             )
@@ -43,6 +44,7 @@ object AppViewModelProvider {
         initializer {
             CosmeticDetailViewModel(
                 savedStateHandle = createSavedStateHandle(),
+                app = shopNiteApplication(),
                 repository = shopNiteApplication().appContainer.fortniteRepository,
                 settingsRepository = shopNiteApplication().appContainer.userSettingsRepository,
             )

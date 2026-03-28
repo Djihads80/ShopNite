@@ -30,6 +30,8 @@ data class UserSettings(
     val wishlist: Set<String> = emptySet(),
     val notifiedReturnIds: Set<String> = emptySet(),
     val notifiedLeavingTokens: Set<String> = emptySet(),
+    val debugMenuUnlocked: Boolean = false,
+    val debugForceCosmeticNotificationButtonEnabled: Boolean = false,
 )
 
 class UserSettingsRepository(private val context: Context) {
@@ -106,6 +108,22 @@ class UserSettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun unlockDebugMenu() {
+        context.userSettingsDataStore.edit { preferences ->
+            preferences[Keys.DebugMenuUnlocked] = true
+        }
+    }
+
+    suspend fun saveDebugPreferences(
+        forceCosmeticNotificationButtonEnabled: Boolean? = null,
+    ) {
+        context.userSettingsDataStore.edit { preferences ->
+            forceCosmeticNotificationButtonEnabled?.let {
+                preferences[Keys.DebugForceCosmeticNotificationButtonEnabled] = it
+            }
+        }
+    }
+
     private fun toUserSettings(preferences: Preferences): UserSettings = UserSettings(
         apiKey = preferences[Keys.ApiKey]?.takeIf { it.isNotBlank() } ?: defaultFortniteApiKey(),
         customApiKey = preferences[Keys.ApiKey].orEmpty(),
@@ -119,6 +137,9 @@ class UserSettingsRepository(private val context: Context) {
         wishlist = preferences[Keys.Wishlist].orEmpty(),
         notifiedReturnIds = preferences[Keys.NotifiedReturnIds].orEmpty(),
         notifiedLeavingTokens = preferences[Keys.NotifiedLeavingTokens].orEmpty(),
+        debugMenuUnlocked = preferences[Keys.DebugMenuUnlocked] ?: false,
+        debugForceCosmeticNotificationButtonEnabled =
+            preferences[Keys.DebugForceCosmeticNotificationButtonEnabled] ?: false,
     )
 
     private object Keys {
@@ -133,6 +154,9 @@ class UserSettingsRepository(private val context: Context) {
         val Wishlist = stringSetPreferencesKey("wishlist")
         val NotifiedReturnIds = stringSetPreferencesKey("notified_return_ids")
         val NotifiedLeavingTokens = stringSetPreferencesKey("notified_leaving_tokens")
+        val DebugMenuUnlocked = booleanPreferencesKey("debug_menu_unlocked")
+        val DebugForceCosmeticNotificationButtonEnabled =
+            booleanPreferencesKey("debug_force_cosmetic_notification_button_enabled")
     }
 }
 

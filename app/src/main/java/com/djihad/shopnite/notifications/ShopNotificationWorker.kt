@@ -8,7 +8,6 @@ import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.djihad.shopnite.ShopNiteApplication
-import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.util.Formatters
 import kotlinx.coroutines.flow.first
 
@@ -33,14 +32,8 @@ class ShopNotificationWorker(
 
             if (settings.notifyWishlistReturns) {
                 val freshReturns = shop.items.filter { it.cosmeticId !in settings.notifiedReturnIds }
-                if (freshReturns.isNotEmpty()) {
-                    notifyItems(
-                        channelId = NotificationChannels.WishlistReturns,
-                        notificationId = 1001,
-                        title = "Wishlist return${if (freshReturns.size == 1) "" else "s"}",
-                        items = freshReturns,
-                        bodyMapper = { item -> "${item.name} is back for ${Formatters.formatPrice(item.price)} V-Bucks." },
-                    )
+                freshReturns.forEach { item ->
+                    ShopItemNotifications.showWishlistReturn(applicationContext, item)
                 }
                 settingsRepository.setNotifiedReturnIds(currentIds)
             }
@@ -54,16 +47,8 @@ class ShopNotificationWorker(
                     val token = shop.hash?.let { "$it:${item.cosmeticId}" }
                     token != null && token !in settings.notifiedLeavingTokens
                 }
-                if (freshLeaving.isNotEmpty()) {
-                    notifyItems(
-                        channelId = NotificationChannels.LeavingSoon,
-                        notificationId = 1002,
-                        title = "Leaving the shop soon",
-                        items = freshLeaving,
-                        bodyMapper = { item ->
-                            "${item.name} ${Formatters.formatTimeLeft(item.outDate)?.lowercase().orEmpty()}."
-                        },
-                    )
+                freshLeaving.forEach { item ->
+                    ShopItemNotifications.showWishlistLeavingSoon(applicationContext, item)
                 }
                 settingsRepository.setNotifiedLeavingTokens(leavingTokens)
             }
@@ -72,28 +57,6 @@ class ShopNotificationWorker(
         }.getOrElse {
             Result.retry()
         }
-    }
-
-    private fun notifyItems(
-        channelId: String,
-        notificationId: Int,
-        title: String,
-        items: List<ShopItem>,
-        bodyMapper: (ShopItem) -> String,
-    ) {
-        val body = if (items.size == 1) {
-            bodyMapper(items.first())
-        } else {
-            items.take(3).joinToString(separator = "\n") { bodyMapper(it) }
-        }
-
-        NotificationSupport.showTextNotification(
-            context = applicationContext,
-            channelId = channelId,
-            notificationId = notificationId,
-            title = title,
-            body = body,
-        )
     }
 
     private fun hasNotificationPermission(): Boolean {
