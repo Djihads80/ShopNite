@@ -5,10 +5,15 @@ import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.util.Formatters
 
 object ShopItemNotifications {
-    fun showWishlistReturn(
+    suspend fun showWishlistReturn(
         context: Context,
         item: ShopItem,
     ) {
+        val largeIcon = NotificationSupport.loadCosmeticLargeIcon(
+            context = context,
+            imageUrl = item.imageUrl,
+            addEmoteOutline = isEmote(item.typeValue),
+        )
         NotificationSupport.showTextNotification(
             context = context,
             channelId = NotificationChannels.WishlistReturns,
@@ -24,13 +29,19 @@ object ShopItemNotifications {
                 price = item.price,
                 outDate = item.outDate,
             ),
+            largeIcon = largeIcon,
         )
     }
 
-    fun showWishlistLeavingSoon(
+    suspend fun showWishlistLeavingSoon(
         context: Context,
         item: ShopItem,
     ) {
+        val largeIcon = NotificationSupport.loadCosmeticLargeIcon(
+            context = context,
+            imageUrl = item.imageUrl,
+            addEmoteOutline = isEmote(item.typeValue),
+        )
         NotificationSupport.showTextNotification(
             context = context,
             channelId = NotificationChannels.LeavingSoon,
@@ -46,16 +57,24 @@ object ShopItemNotifications {
                 price = item.price,
                 outDate = item.outDate,
             ),
+            largeIcon = largeIcon,
         )
     }
 
-    fun showDebugWishlistReturn(
+    suspend fun showDebugWishlistReturn(
         context: Context,
         cosmeticName: String,
         cosmeticType: String,
+        cosmeticTypeValue: String,
+        imageUrl: String? = null,
         price: Int? = null,
         outDate: String? = null,
     ) {
+        val largeIcon = NotificationSupport.loadCosmeticLargeIcon(
+            context = context,
+            imageUrl = imageUrl,
+            addEmoteOutline = isEmote(cosmeticTypeValue),
+        )
         NotificationSupport.showTextNotification(
             context = context,
             channelId = NotificationChannels.WishlistReturns,
@@ -68,16 +87,24 @@ object ShopItemNotifications {
                 price = price,
                 outDate = outDate,
             ),
+            largeIcon = largeIcon,
         )
     }
 
-    fun showDebugWishlistLeavingSoon(
+    suspend fun showDebugWishlistLeavingSoon(
         context: Context,
         cosmeticName: String,
         cosmeticType: String,
+        cosmeticTypeValue: String,
+        imageUrl: String? = null,
         price: Int? = null,
         outDate: String? = null,
     ) {
+        val largeIcon = NotificationSupport.loadCosmeticLargeIcon(
+            context = context,
+            imageUrl = imageUrl,
+            addEmoteOutline = isEmote(cosmeticTypeValue),
+        )
         NotificationSupport.showTextNotification(
             context = context,
             channelId = NotificationChannels.LeavingSoon,
@@ -90,6 +117,7 @@ object ShopItemNotifications {
                 price = price,
                 outDate = outDate,
             ),
+            largeIcon = largeIcon,
         )
     }
 
@@ -134,7 +162,10 @@ object ShopItemNotifications {
         outDate: String?,
     ): String {
         val priceText = price?.let { "${Formatters.formatPrice(it)} V-Bucks" } ?: "Price unavailable"
-        val leaveDateText = Formatters.formatDateTime(outDate) ?: "Unknown"
+        val leaveDateText = Formatters.formatDate(outDate) ?: "Unknown"
         return "$priceText | Leaves $leaveDateText"
     }
+
+    private fun isEmote(typeValue: String): Boolean =
+        typeValue.equals("emote", ignoreCase = true)
 }

@@ -61,14 +61,18 @@ class CosmeticDetailViewModel(
 
     fun forceSendWishlistNotification() {
         val detail = _uiState.value.detail ?: return
-        NotificationChannels.create(app.applicationContext)
-        ShopItemNotifications.showDebugWishlistReturn(
-            context = app.applicationContext,
-            cosmeticName = detail.cosmetic.name,
-            cosmeticType = detail.cosmetic.typeLabel,
-            price = detail.currentShopItem?.price,
-            outDate = detail.currentShopItem?.outDate,
-        )
+        viewModelScope.launch {
+            NotificationChannels.create(app.applicationContext)
+            ShopItemNotifications.showDebugWishlistReturn(
+                context = app.applicationContext,
+                cosmeticName = detail.cosmetic.name,
+                cosmeticType = detail.cosmetic.typeLabel,
+                cosmeticTypeValue = detail.cosmetic.typeValue,
+                imageUrl = detail.cosmetic.imageUrl,
+                price = detail.currentShopItem?.price,
+                outDate = detail.currentShopItem?.outDate,
+            )
+        }
     }
 
     private fun refresh(language: String) {

@@ -27,6 +27,8 @@ object DebugNotificationManager {
                 context = context,
                 cosmeticName = item.name,
                 cosmeticType = item.typeLabel,
+                cosmeticTypeValue = item.typeValue,
+                imageUrl = item.imageUrl,
                 price = item.price,
                 outDate = item.outDate,
             )
@@ -55,6 +57,8 @@ object DebugNotificationManager {
                 context = context,
                 cosmeticName = item.name,
                 cosmeticType = item.typeLabel,
+                cosmeticTypeValue = item.typeValue,
+                imageUrl = item.imageUrl,
                 price = item.price,
                 outDate = item.outDate,
             )
