@@ -149,7 +149,7 @@ class FortniteRepository(
             name = name.orEmpty().ifBlank { cosmeticId ?: id },
             subtitle = set?.text ?: introduction?.text,
             description = description,
-            typeLabel = type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+            typeLabel = typeLabelFor(type?.value, type?.displayValue, source),
             typeValue = normalizeTypeValue(type?.value, source),
             filterLabel = filterLabelFor(type?.value, type?.displayValue, source),
             rarityLabel = series?.value ?: rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
@@ -171,7 +171,7 @@ class FortniteRepository(
             name = name.orEmpty(),
             subtitle = vehicleId,
             description = description,
-            typeLabel = type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+            typeLabel = typeLabelFor(type?.value, type?.displayValue, source),
             typeValue = normalizeTypeValue(type?.value, source),
             filterLabel = filterLabelFor(type?.value, type?.displayValue, source),
             rarityLabel = series?.value ?: rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
@@ -219,7 +219,7 @@ class FortniteRepository(
         name = item.name.orEmpty(),
         subtitle = bundle?.name ?: layout?.name,
         description = item.description,
-        typeLabel = item.type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+        typeLabel = typeLabelFor(item.type?.value, item.type?.displayValue, source),
         typeValue = normalizeTypeValue(item.type?.value, source),
         filterLabel = filterLabelFor(item.type?.value, item.type?.displayValue, source),
         rarityLabel = item.series?.value ?: item.rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
@@ -250,7 +250,7 @@ class FortniteRepository(
         name = item.name.orEmpty(),
         subtitle = bundle?.name ?: layout?.name,
         description = item.description,
-        typeLabel = item.type?.displayValue.orEmpty().ifBlank { source.defaultTypeLabel() },
+        typeLabel = typeLabelFor(item.type?.value, item.type?.displayValue, source),
         typeValue = normalizeTypeValue(item.type?.value, source),
         filterLabel = filterLabelFor(item.type?.value, item.type?.displayValue, source),
         rarityLabel = item.series?.value ?: item.rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
@@ -340,6 +340,15 @@ class FortniteRepository(
         source == CosmeticSource.LegoKits -> "legoset"
         source == CosmeticSource.Lego -> "legoprop"
         else -> ""
+    }
+
+    private fun typeLabelFor(
+        typeValue: String?,
+        typeDisplayValue: String?,
+        source: CosmeticSource,
+    ): String = when (normalizeTypeValue(typeValue, source)) {
+        "shoe" -> "Kicks"
+        else -> typeDisplayValue.orEmpty().ifBlank { source.defaultTypeLabel() }
     }
 
     private fun filterLabelFor(

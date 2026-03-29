@@ -32,10 +32,12 @@ import com.djihad.shopnite.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DebugOpsScreen(
+    debugMenuUnlocked: Boolean,
     forceCosmeticNotificationButtonEnabled: Boolean,
     onBack: () -> Unit,
     onForceSendWishlistNotification: () -> Unit,
     onForceSendWishlistLeavingNotification: () -> Unit,
+    onSetDebugMenuEnabled: (Boolean) -> Unit,
     onSetForceCosmeticNotificationButtonEnabled: (Boolean) -> Unit,
 ) {
     Scaffold(
@@ -88,6 +90,17 @@ fun DebugOpsScreen(
                         ) {
                             Text(stringResource(R.string.settings_debug_force_leaving))
                         }
+                        DebugToggleRow(
+                            title = stringResource(R.string.settings_debug_enabled_title),
+                            subtitle = stringResource(R.string.settings_debug_enabled_subtitle),
+                            checked = debugMenuUnlocked,
+                            onCheckedChange = { enabled ->
+                                onSetDebugMenuEnabled(enabled)
+                                if (!enabled) {
+                                    onBack()
+                                }
+                            },
+                        )
                         DebugToggleRow(
                             title = stringResource(R.string.settings_debug_force_cosmetic_title),
                             subtitle = stringResource(R.string.settings_debug_force_cosmetic_subtitle),

@@ -130,6 +130,10 @@ class SettingsViewModel(
         viewModelScope.launch { settingsRepository.unlockDebugMenu() }
     }
 
+    fun setDebugMenuEnabled(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setDebugMenuEnabled(enabled) }
+    }
+
     fun setForceCosmeticNotificationButtonEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.saveDebugPreferences(

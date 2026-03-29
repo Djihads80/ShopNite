@@ -42,7 +42,8 @@ class CosmeticDetailViewModel(
                 _uiState.update {
                     it.copy(
                         isWishlisted = cosmeticId in settings.wishlist,
-                        showForceNotificationDebugButton = settings.debugForceCosmeticNotificationButtonEnabled,
+                        showForceNotificationDebugButton =
+                            settings.debugMenuUnlocked && settings.debugForceCosmeticNotificationButtonEnabled,
                     )
                 }
                 if (loadedLanguage != settings.apiLanguageTag) {

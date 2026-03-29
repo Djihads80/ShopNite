@@ -10,8 +10,11 @@ import android.graphics.BitmapFactory
 import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
+import android.graphics.Shader
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -23,14 +26,17 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
 object NotificationSupport {
     private const val LargeIconSizeDp = 64f
-    private const val LargeIconPaddingDp = 6f
+    private const val LargeIconBadgeInsetDp = 2f
+    private const val LargeIconContentPaddingDp = 6f
     private const val EmoteOutlineBlurDp = 2f
-    private const val EmoteOutlineAlpha = 41
+    private const val EmoteOutlineAlpha = 75
+    private const val LargeIconBackgroundAlpha = 232
 
     private val ephemeralNotificationIds = AtomicInteger(
         ((System.currentTimeMillis() and 0x7fffffffL).toInt()).coerceAtLeast(1),
@@ -76,20 +82,24 @@ object NotificationSupport {
 
         runCatching {
             val downloaded = downloadBitmap(imageUrl) ?: return@runCatching null
-            val normalized = normalizeLargeIcon(context, downloaded)
-            if (downloaded !== normalized) {
-                downloaded.recycle()
-            }
+            val fittedArt = fitLargeIconArt(context, downloaded)
+            downloaded.recycle()
 
-            if (!addEmoteOutline) {
-                normalized
+            val preparedArt = if (!addEmoteOutline) {
+                fittedArt
             } else {
-                val outlined = addOutline(normalized, context)
-                if (outlined !== normalized) {
-                    normalized.recycle()
-                }
+                val outlined = addOutline(fittedArt, context)
+                fittedArt.recycle()
                 outlined
             }
+
+            val composed = composeAvatarLargeIcon(
+                context = context,
+                art = preparedArt,
+                emoteStyle = addEmoteOutline,
+            )
+            preparedArt.recycle()
+            composed
         }.getOrNull()
     }
 
@@ -125,14 +135,15 @@ object NotificationSupport {
         }
     }
 
-    private fun normalizeLargeIcon(
+    private fun fitLargeIconArt(
         context: Context,
         source: Bitmap,
     ): Bitmap {
         val density = context.resources.displayMetrics.density
         val sizePx = (LargeIconSizeDp * density).roundToInt().coerceAtLeast(64)
-        val paddingPx = (LargeIconPaddingDp * density).roundToInt().coerceAtLeast(4)
-        val contentSize = (sizePx - (paddingPx * 2)).coerceAtLeast(1)
+        val badgeInsetPx = (LargeIconBadgeInsetDp * density).roundToInt().coerceAtLeast(1)
+        val contentPaddingPx = (LargeIconContentPaddingDp * density).roundToInt().coerceAtLeast(4)
+        val contentSize = (sizePx - (badgeInsetPx * 2) - (contentPaddingPx * 2)).coerceAtLeast(1)
 
         val result = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
@@ -153,6 +164,55 @@ object NotificationSupport {
             paint,
         )
         return result
+    }
+
+    private fun composeAvatarLargeIcon(
+        context: Context,
+        art: Bitmap,
+        emoteStyle: Boolean,
+    ): Bitmap {
+        val density = context.resources.displayMetrics.density
+        val badgeInsetPx = (LargeIconBadgeInsetDp * density).coerceAtLeast(1f)
+        val avatar = Bitmap.createBitmap(art.width, art.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(avatar)
+        val badgeBounds = RectF(
+            badgeInsetPx,
+            badgeInsetPx,
+            art.width.toFloat() - badgeInsetPx,
+            art.height.toFloat() - badgeInsetPx,
+        )
+        val badgeRadius = min(badgeBounds.width(), badgeBounds.height()) / 2f
+
+        val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = backgroundShader(art, badgeBounds, emoteStyle)
+        }
+        canvas.drawOval(badgeBounds, backgroundPaint)
+
+        val clipPath = Path().apply {
+            addOval(badgeBounds, Path.Direction.CW)
+        }
+        val saveCount = canvas.save()
+        canvas.clipPath(clipPath)
+        canvas.drawBitmap(art, 0f, 0f, null)
+        canvas.restoreToCount(saveCount)
+
+        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = max(1f, density)
+            color = if (emoteStyle) {
+                Color.argb(48, 255, 255, 255)
+            } else {
+                Color.argb(36, 255, 255, 255)
+            }
+        }
+        canvas.drawCircle(
+            badgeBounds.centerX(),
+            badgeBounds.centerY(),
+            badgeRadius - (ringPaint.strokeWidth / 2f),
+            ringPaint,
+        )
+
+        return avatar
     }
 
     private fun addOutline(
@@ -178,6 +238,84 @@ object NotificationSupport {
 
         return outlineBitmap
     }
+
+    private fun backgroundShader(
+        art: Bitmap,
+        badgeBounds: RectF,
+        emoteStyle: Boolean,
+    ): Shader {
+        val colors = if (emoteStyle) {
+            intArrayOf(
+                Color.argb(LargeIconBackgroundAlpha, 84, 89, 101),
+                Color.argb(LargeIconBackgroundAlpha, 40, 44, 54),
+            )
+        } else {
+            val baseColor = sampleBadgeColor(art)
+            val lightColor = shiftColor(baseColor, 1.12f)
+            val darkColor = shiftColor(baseColor, 0.74f)
+            intArrayOf(
+                Color.argb(LargeIconBackgroundAlpha, Color.red(lightColor), Color.green(lightColor), Color.blue(lightColor)),
+                Color.argb(LargeIconBackgroundAlpha, Color.red(darkColor), Color.green(darkColor), Color.blue(darkColor)),
+            )
+        }
+
+        return LinearGradient(
+            badgeBounds.left,
+            badgeBounds.top,
+            badgeBounds.right,
+            badgeBounds.bottom,
+            colors,
+            null,
+            Shader.TileMode.CLAMP,
+        )
+    }
+
+    private fun sampleBadgeColor(bitmap: Bitmap): Int {
+        var redTotal = 0L
+        var greenTotal = 0L
+        var blueTotal = 0L
+        var sampleCount = 0L
+        val stepX = max(1, bitmap.width / 24)
+        val stepY = max(1, bitmap.height / 24)
+
+        var y = 0
+        while (y < bitmap.height) {
+            var x = 0
+            while (x < bitmap.width) {
+                val pixel = bitmap.getPixel(x, y)
+                val alpha = Color.alpha(pixel)
+                if (alpha > 32) {
+                    redTotal += Color.red(pixel)
+                    greenTotal += Color.green(pixel)
+                    blueTotal += Color.blue(pixel)
+                    sampleCount += 1
+                }
+                x += stepX
+            }
+            y += stepY
+        }
+
+        if (sampleCount == 0L) {
+            return Color.rgb(76, 98, 132)
+        }
+
+        val averageColor = Color.rgb(
+            (redTotal / sampleCount).toInt().coerceIn(0, 255),
+            (greenTotal / sampleCount).toInt().coerceIn(0, 255),
+            (blueTotal / sampleCount).toInt().coerceIn(0, 255),
+        )
+        val hsv = FloatArray(3)
+        Color.colorToHSV(averageColor, hsv)
+        hsv[1] = hsv[1].coerceIn(0.28f, 0.72f)
+        hsv[2] = hsv[2].coerceIn(0.34f, 0.8f)
+        return Color.HSVToColor(hsv)
+    }
+
+    private fun shiftColor(color: Int, factor: Float): Int = Color.rgb(
+        (Color.red(color) * factor).roundToInt().coerceIn(0, 255),
+        (Color.green(color) * factor).roundToInt().coerceIn(0, 255),
+        (Color.blue(color) * factor).roundToInt().coerceIn(0, 255),
+    )
 
     private fun openAppPendingIntent(context: Context): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {

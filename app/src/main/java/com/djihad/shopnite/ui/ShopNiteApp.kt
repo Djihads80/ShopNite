@@ -209,6 +209,7 @@ fun ShopNiteApp() {
                 val viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
                 DebugOpsScreen(
+                    debugMenuUnlocked = state.settings.debugMenuUnlocked,
                     forceCosmeticNotificationButtonEnabled = state.settings.debugForceCosmeticNotificationButtonEnabled,
                     onBack = { navController.popBackStack() },
                     onForceSendWishlistNotification = {
@@ -219,6 +220,7 @@ fun ShopNiteApp() {
                         requestNotificationsPermission(markPrompted = false)
                         viewModel.forceSendWishlistLeavingNotification()
                     },
+                    onSetDebugMenuEnabled = viewModel::setDebugMenuEnabled,
                     onSetForceCosmeticNotificationButtonEnabled = viewModel::setForceCosmeticNotificationButtonEnabled,
                 )
             }

@@ -1,5 +1,6 @@
 package com.djihad.shopnite.ui.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -75,6 +77,7 @@ private fun CreditsContent(
     debugMenuUnlocked: Boolean,
     onUnlockDebugMenu: () -> Unit,
 ) {
+    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     var versionTapCount by rememberSaveable { mutableStateOf(0) }
 
@@ -131,10 +134,30 @@ private fun CreditsContent(
                     .fillMaxWidth()
                     .clickable {
                         if (!debugMenuUnlocked) {
-                            val nextTapCount = (versionTapCount + 1).coerceAtMost(7)
+                            val nextTapCount = (versionTapCount + 1).coerceAtMost(DEBUG_UNLOCK_TAP_COUNT)
                             versionTapCount = nextTapCount
-                            if (nextTapCount >= 7) {
+                            val tapsRemaining = DEBUG_UNLOCK_TAP_COUNT - nextTapCount
+                            if (nextTapCount >= DEBUG_UNLOCK_TAP_COUNT) {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.credits_debug_toast_success),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
                                 onUnlockDebugMenu()
+                            } else {
+                                val countdownMessage = if (tapsRemaining == 1) {
+                                    context.getString(R.string.credits_debug_toast_countdown_one)
+                                } else {
+                                    context.getString(
+                                        R.string.credits_debug_toast_countdown_many,
+                                        tapsRemaining,
+                                    )
+                                }
+                                Toast.makeText(
+                                    context,
+                                    countdownMessage,
+                                    Toast.LENGTH_SHORT,
+                                ).show()
                             }
                         }
                     },
@@ -157,6 +180,8 @@ private fun CreditsContent(
         }
     }
 }
+
+private const val DEBUG_UNLOCK_TAP_COUNT = 8
 
 @Composable
 private fun CreditsCard(

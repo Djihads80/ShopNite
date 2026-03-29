@@ -114,6 +114,12 @@ class UserSettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun setDebugMenuEnabled(enabled: Boolean) {
+        context.userSettingsDataStore.edit { preferences ->
+            preferences[Keys.DebugMenuUnlocked] = enabled
+        }
+    }
+
     suspend fun saveDebugPreferences(
         forceCosmeticNotificationButtonEnabled: Boolean? = null,
     ) {
