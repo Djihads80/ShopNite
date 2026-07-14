@@ -171,6 +171,7 @@ class FortniteRepository(
             isNew = isNew,
             source = source,
             imageOptions = imageOptions(
+                cosmeticName = name.orEmpty().ifBlank { cosmeticId ?: id },
                 baseImageUrl = images.bestImageUrl(),
                 legoImageUrl = images?.lego,
                 variants = variants,
@@ -333,6 +334,7 @@ class FortniteRepository(
         bestImageUrl() ?: displayImage ?: bundleImage
 
     private fun imageOptions(
+        cosmeticName: String,
         baseImageUrl: String?,
         legoImageUrl: String?,
         variants: List<JsonElement>,
@@ -342,6 +344,9 @@ class FortniteRepository(
         }
         variants.flatMapIndexed { index, variant ->
             variant.extractVariantImages(fallbackLabel = "Style ${index + 1}")
+        }.filterNot { option ->
+            option.label.equals("Default", ignoreCase = true) ||
+                option.label.equals(cosmeticName, ignoreCase = true)
         }.forEach { option ->
             if (none { it.imageUrl == option.imageUrl }) {
                 add(option)

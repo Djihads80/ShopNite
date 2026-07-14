@@ -72,6 +72,9 @@ class CosmeticDetailViewModel(
                 imageUrl = detail.cosmetic.imageUrl,
                 price = detail.currentShopItem?.price,
                 outDate = detail.currentShopItem?.outDate,
+                rarityKey = detail.cosmetic.rarityKey,
+                rarityLabel = detail.cosmetic.rarityLabel,
+                seriesName = detail.cosmetic.seriesName,
             )
         }
     }

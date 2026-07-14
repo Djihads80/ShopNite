@@ -20,7 +20,7 @@ data class ShopUiState(
     val snapshot: ShopSnapshot = ShopSnapshot(null, null, null, emptyList()),
     val searchQuery: String = "",
     val selectedType: String = CosmeticFilters.All,
-    val selectedRarity: String = CosmeticFilters.All,
+    val selectedRarities: Set<String> = emptySet(),
     val selectedSort: CosmeticSort = CosmeticSort.NewestFirst,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
@@ -53,8 +53,8 @@ class ShopViewModel(
         _uiState.update { it.copy(selectedType = type) }
     }
 
-    fun selectRarity(rarity: String) {
-        _uiState.update { it.copy(selectedRarity = rarity) }
+    fun selectRarities(rarities: Set<String>) {
+        _uiState.update { it.copy(selectedRarities = rarities) }
     }
 
     fun selectSort(sort: CosmeticSort) {
@@ -81,7 +81,7 @@ class ShopViewModel(
         val state = _uiState.value
         return state.snapshot.items.filter { item ->
             val matchesType = state.selectedType == CosmeticFilters.All || item.filterLabel == state.selectedType
-            val matchesRarity = state.selectedRarity == CosmeticFilters.All || item.rarityLabel == state.selectedRarity
+            val matchesRarity = state.selectedRarities.isEmpty() || item.rarityLabel in state.selectedRarities
             val matchesQuery = state.searchQuery.isBlank() ||
                 item.name.contains(state.searchQuery, ignoreCase = true) ||
                 item.typeLabel.contains(state.searchQuery, ignoreCase = true) ||

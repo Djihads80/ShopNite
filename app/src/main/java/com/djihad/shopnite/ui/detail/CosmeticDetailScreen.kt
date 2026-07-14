@@ -33,6 +33,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -53,6 +58,7 @@ import com.djihad.shopnite.ui.components.VbucksBadge
 import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 import com.djihad.shopnite.util.Formatters
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -300,6 +306,15 @@ private fun CosmeticImagePager(
     imageOptions: List<CosmeticImageOption>,
 ) {
     val pagerState = rememberPagerState(pageCount = { imageOptions.size.coerceAtLeast(1) })
+    var showPageChrome by remember { mutableStateOf(imageOptions.size > 1) }
+
+    LaunchedEffect(pagerState.currentPage, imageOptions.size) {
+        showPageChrome = imageOptions.size > 1
+        if (imageOptions.size > 1) {
+            delay(1_000)
+            showPageChrome = false
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -344,7 +359,7 @@ private fun CosmeticImagePager(
             }
         }
 
-        if (imageOptions.size > 1) {
+        if (imageOptions.size > 1 && showPageChrome) {
             Text(
                 text = imageOptions[pagerState.currentPage].label,
                 style = MaterialTheme.typography.labelLarge,
@@ -358,19 +373,27 @@ private fun CosmeticImagePager(
                     )
                     .padding(horizontal = 10.dp, vertical = 6.dp),
             )
-            Text(
-                text = "${pagerState.currentPage + 1}/${imageOptions.size}",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+            Row(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(14.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
-                        shape = MaterialTheme.shapes.small,
+                    .align(Alignment.BottomCenter)
+                    .padding(14.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                imageOptions.forEachIndexed { index, _ ->
+                    Box(
+                        modifier = Modifier
+                            .size(if (index == pagerState.currentPage) 8.dp else 6.dp)
+                            .background(
+                                color = if (index == pagerState.currentPage) {
+                                    MaterialTheme.colorScheme.onSurface
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.42f)
+                                },
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                            ),
                     )
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-            )
+                }
+            }
         }
     }
 }

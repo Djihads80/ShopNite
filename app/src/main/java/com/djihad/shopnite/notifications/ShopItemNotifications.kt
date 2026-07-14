@@ -13,6 +13,9 @@ object ShopItemNotifications {
             context = context,
             imageUrl = item.imageUrl,
             addEmoteOutline = isEmote(item.typeValue),
+            rarityKey = item.rarityKey,
+            rarityLabel = item.rarityLabel,
+            seriesName = item.seriesName,
         )
         NotificationSupport.showTextNotification(
             context = context,
@@ -41,6 +44,9 @@ object ShopItemNotifications {
             context = context,
             imageUrl = item.imageUrl,
             addEmoteOutline = isEmote(item.typeValue),
+            rarityKey = item.rarityKey,
+            rarityLabel = item.rarityLabel,
+            seriesName = item.seriesName,
         )
         NotificationSupport.showTextNotification(
             context = context,
@@ -69,11 +75,17 @@ object ShopItemNotifications {
         imageUrl: String? = null,
         price: Int? = null,
         outDate: String? = null,
+        rarityKey: String? = null,
+        rarityLabel: String? = null,
+        seriesName: String? = null,
     ) {
         val largeIcon = NotificationSupport.loadCosmeticLargeIcon(
             context = context,
             imageUrl = imageUrl,
             addEmoteOutline = isEmote(cosmeticTypeValue),
+            rarityKey = rarityKey,
+            rarityLabel = rarityLabel,
+            seriesName = seriesName,
         )
         NotificationSupport.showTextNotification(
             context = context,
@@ -99,11 +111,17 @@ object ShopItemNotifications {
         imageUrl: String? = null,
         price: Int? = null,
         outDate: String? = null,
+        rarityKey: String? = null,
+        rarityLabel: String? = null,
+        seriesName: String? = null,
     ) {
         val largeIcon = NotificationSupport.loadCosmeticLargeIcon(
             context = context,
             imageUrl = imageUrl,
             addEmoteOutline = isEmote(cosmeticTypeValue),
+            rarityKey = rarityKey,
+            rarityLabel = rarityLabel,
+            seriesName = seriesName,
         )
         NotificationSupport.showTextNotification(
             context = context,

@@ -21,6 +21,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.djihad.shopnite.MainActivity
 import com.djihad.shopnite.R
+import com.djihad.shopnite.ui.findRarityBackgroundRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -33,7 +34,7 @@ import kotlin.math.roundToInt
 object NotificationSupport {
     private const val LargeIconSizeDp = 64f
     private const val LargeIconBadgeInsetDp = 2f
-    private const val LargeIconContentPaddingDp = 6f
+    private const val LargeIconContentPaddingDp = 0f
     private const val EmoteOutlineBlurDp = 2f
     private const val EmoteOutlineAlpha = 75
     private const val LargeIconBackgroundAlpha = 232
@@ -75,6 +76,9 @@ object NotificationSupport {
         context: Context,
         imageUrl: String?,
         addEmoteOutline: Boolean,
+        rarityKey: String? = null,
+        rarityLabel: String? = null,
+        seriesName: String? = null,
     ): Bitmap? = withContext(Dispatchers.IO) {
         if (imageUrl.isNullOrBlank()) {
             return@withContext null
@@ -97,6 +101,7 @@ object NotificationSupport {
                 context = context,
                 art = preparedArt,
                 emoteStyle = addEmoteOutline,
+                rarityBackground = loadRarityBackground(context, rarityKey, rarityLabel, seriesName),
             )
             preparedArt.recycle()
             composed
@@ -142,7 +147,7 @@ object NotificationSupport {
         val density = context.resources.displayMetrics.density
         val sizePx = (LargeIconSizeDp * density).roundToInt().coerceAtLeast(64)
         val badgeInsetPx = (LargeIconBadgeInsetDp * density).roundToInt().coerceAtLeast(1)
-        val contentPaddingPx = (LargeIconContentPaddingDp * density).roundToInt().coerceAtLeast(4)
+        val contentPaddingPx = (LargeIconContentPaddingDp * density).roundToInt().coerceAtLeast(0)
         val contentSize = (sizePx - (badgeInsetPx * 2) - (contentPaddingPx * 2)).coerceAtLeast(1)
 
         val result = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
@@ -170,6 +175,7 @@ object NotificationSupport {
         context: Context,
         art: Bitmap,
         emoteStyle: Boolean,
+        rarityBackground: Bitmap?,
     ): Bitmap {
         val density = context.resources.displayMetrics.density
         val badgeInsetPx = (LargeIconBadgeInsetDp * density).coerceAtLeast(1f)
@@ -183,10 +189,26 @@ object NotificationSupport {
         )
         val badgeRadius = min(badgeBounds.width(), badgeBounds.height()) / 2f
 
-        val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            shader = backgroundShader(art, badgeBounds, emoteStyle)
+        if (rarityBackground != null) {
+            val saveCount = canvas.save()
+            val backgroundClipPath = Path().apply {
+                addOval(badgeBounds, Path.Direction.CW)
+            }
+            canvas.clipPath(backgroundClipPath)
+            canvas.drawBitmap(
+                rarityBackground,
+                null,
+                badgeBounds,
+                Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG),
+            )
+            canvas.restoreToCount(saveCount)
+            rarityBackground.recycle()
+        } else {
+            val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                shader = backgroundShader(art, badgeBounds, emoteStyle)
+            }
+            canvas.drawOval(badgeBounds, backgroundPaint)
         }
-        canvas.drawOval(badgeBounds, backgroundPaint)
 
         val clipPath = Path().apply {
             addOval(badgeBounds, Path.Direction.CW)
@@ -268,6 +290,20 @@ object NotificationSupport {
             null,
             Shader.TileMode.CLAMP,
         )
+    }
+
+    private fun loadRarityBackground(
+        context: Context,
+        rarityKey: String?,
+        rarityLabel: String?,
+        seriesName: String?,
+    ): Bitmap? {
+        val resId = context.findRarityBackgroundRes(
+            rarityKey = rarityKey,
+            rarityLabel = rarityLabel,
+            seriesName = seriesName,
+        ) ?: return null
+        return BitmapFactory.decodeResource(context.resources, resId)
     }
 
     private fun sampleBadgeColor(bitmap: Bitmap): Int {

@@ -31,6 +31,9 @@ object DebugNotificationManager {
                 imageUrl = item.imageUrl,
                 price = item.price,
                 outDate = item.outDate,
+                rarityKey = item.rarityKey,
+                rarityLabel = item.rarityLabel,
+                seriesName = item.seriesName,
             )
         }
     }
@@ -61,6 +64,9 @@ object DebugNotificationManager {
                 imageUrl = item.imageUrl,
                 price = item.price,
                 outDate = item.outDate,
+                rarityKey = item.rarityKey,
+                rarityLabel = item.rarityLabel,
+                seriesName = item.seriesName,
             )
         }
     }

@@ -51,7 +51,7 @@ fun ShopScreen(
     filteredItems: List<ShopItem>,
     onSearchChange: (String) -> Unit,
     onSelectType: (String) -> Unit,
-    onSelectRarity: (String) -> Unit,
+    onSelectRarities: (Set<String>) -> Unit,
     onSelectSort: (CosmeticSort) -> Unit,
     onOpenCosmetic: (String) -> Unit,
 ) {
@@ -77,10 +77,10 @@ fun ShopScreen(
                 query = uiState.searchQuery,
                 label = stringResource(R.string.shop_search),
                 rarityOptions = rarityOptions,
-                selectedRarity = uiState.selectedRarity,
+                selectedRarities = uiState.selectedRarities,
                 selectedSort = uiState.selectedSort,
                 onQueryChange = onSearchChange,
-                onRaritySelected = onSelectRarity,
+                onRaritiesSelected = onSelectRarities,
                 onSortSelected = onSelectSort,
             )
         }

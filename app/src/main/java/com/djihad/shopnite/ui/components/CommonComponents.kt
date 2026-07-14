@@ -1,14 +1,15 @@
 package com.djihad.shopnite.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -17,21 +18,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.djihad.shopnite.R
 import com.djihad.shopnite.model.CosmeticFilters
@@ -135,15 +139,15 @@ fun SearchControlsRow(
     query: String,
     label: String,
     rarityOptions: List<String>,
-    selectedRarity: String,
+    selectedRarities: Set<String>,
     selectedSort: CosmeticSort,
     onQueryChange: (String) -> Unit,
-    onRaritySelected: (String) -> Unit,
+    onRaritiesSelected: (Set<String>) -> Unit,
     onSortSelected: (CosmeticSort) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var rarityExpanded by remember { mutableStateOf(false) }
-    var sortExpanded by remember { mutableStateOf(false) }
+    var rarityDialogOpen by remember { mutableStateOf(false) }
+    var sortDialogOpen by remember { mutableStateOf(false) }
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -157,61 +161,136 @@ fun SearchControlsRow(
             modifier = Modifier.weight(1f),
         )
         Box {
-            IconButton(onClick = { rarityExpanded = true }) {
+            IconButton(onClick = { rarityDialogOpen = true }) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
                     contentDescription = "Filter rarity",
-                    tint = if (selectedRarity == CosmeticFilters.All) {
+                    tint = if (selectedRarities.isEmpty()) {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     } else {
                         MaterialTheme.colorScheme.primary
                     },
                 )
             }
-            DropdownMenu(
-                expanded = rarityExpanded,
-                onDismissRequest = { rarityExpanded = false },
-            ) {
-                rarityOptions.forEach { option ->
-                    DropdownMenuItem(
-                        text = {
-                            if (option == CosmeticFilters.All) {
-                                Text(stringResource(R.string.common_all))
-                            } else {
-                                RarityPill(text = option)
-                            }
-                        },
-                        onClick = {
-                            onRaritySelected(option)
-                            rarityExpanded = false
-                        },
-                    )
-                }
-            }
         }
         Box {
-            IconButton(onClick = { sortExpanded = true }) {
+            IconButton(onClick = { sortDialogOpen = true }) {
                 Icon(
                     imageVector = Icons.Default.Sort,
                     contentDescription = "Sort cosmetics",
                 )
             }
-            DropdownMenu(
-                expanded = sortExpanded,
-                onDismissRequest = { sortExpanded = false },
-            ) {
-                CosmeticSort.entries.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option.label) },
-                        onClick = {
-                            onSortSelected(option)
-                            sortExpanded = false
-                        },
-                    )
-                }
-            }
         }
     }
+
+    if (rarityDialogOpen) {
+        RarityFilterDialog(
+            rarityOptions = rarityOptions,
+            selectedRarities = selectedRarities,
+            onDismiss = { rarityDialogOpen = false },
+            onSelected = onRaritiesSelected,
+        )
+    }
+
+    if (sortDialogOpen) {
+        SortDialog(
+            selectedSort = selectedSort,
+            onDismiss = { sortDialogOpen = false },
+            onSelected = {
+                onSortSelected(it)
+                sortDialogOpen = false
+            },
+        )
+    }
+}
+
+@Composable
+private fun RarityFilterDialog(
+    rarityOptions: List<String>,
+    selectedRarities: Set<String>,
+    onDismiss: () -> Unit,
+    onSelected: (Set<String>) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Filter rarities") },
+        text = {
+            LazyColumn(modifier = Modifier.heightIn(max = 420.dp)) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = selectedRarities.isEmpty(),
+                            onCheckedChange = { checked ->
+                                if (checked) onSelected(emptySet())
+                            },
+                        )
+                        Text(stringResource(R.string.common_all))
+                    }
+                }
+                items(rarityOptions.filterNot { it == CosmeticFilters.All }) { rarity ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = rarity in selectedRarities,
+                            onCheckedChange = { checked ->
+                                onSelected(
+                                    if (checked) {
+                                        selectedRarities + rarity
+                                    } else {
+                                        selectedRarities - rarity
+                                    },
+                                )
+                            },
+                        )
+                        RarityPill(text = rarity)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Done")
+            }
+        },
+    )
+}
+
+@Composable
+private fun SortDialog(
+    selectedSort: CosmeticSort,
+    onDismiss: () -> Unit,
+    onSelected: (CosmeticSort) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Sort") },
+        text = {
+            Column {
+                CosmeticSort.entries.forEach { option ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(
+                            selected = option == selectedSort,
+                            onClick = { onSelected(option) },
+                        )
+                        Text(option.label)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Done")
+            }
+        },
+    )
 }
 
 @Composable
@@ -225,11 +304,11 @@ fun RarityPill(
         shape = CircleShape,
         color = colors.background,
         contentColor = colors.content,
-        border = BorderStroke(1.dp, colors.content),
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
         )
     }

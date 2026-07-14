@@ -49,7 +49,7 @@ fun CosmeticsScreen(
     filteredItems: List<CosmeticCardItem>,
     onSearchChange: (String) -> Unit,
     onSelectType: (String) -> Unit,
-    onSelectRarity: (String) -> Unit,
+    onSelectRarities: (Set<String>) -> Unit,
     onSelectSort: (CosmeticSort) -> Unit,
     onSelectCollection: (String) -> Unit,
     onOpenCosmetic: (String) -> Unit,
@@ -100,10 +100,10 @@ fun CosmeticsScreen(
                 query = uiState.searchQuery,
                 label = stringResource(R.string.cosmetics_search),
                 rarityOptions = rarityOptions,
-                selectedRarity = uiState.selectedRarity,
+                selectedRarities = uiState.selectedRarities,
                 selectedSort = uiState.selectedSort,
                 onQueryChange = onSearchChange,
-                onRaritySelected = onSelectRarity,
+                onRaritiesSelected = onSelectRarities,
                 onSortSelected = onSelectSort,
             )
         }
