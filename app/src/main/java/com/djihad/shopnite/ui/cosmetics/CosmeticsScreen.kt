@@ -34,10 +34,11 @@ import coil.compose.AsyncImage
 import com.djihad.shopnite.R
 import com.djihad.shopnite.model.CosmeticCardItem
 import com.djihad.shopnite.model.CosmeticFilters
+import com.djihad.shopnite.model.CosmeticSort
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.FilterChipRow
 import com.djihad.shopnite.ui.components.LoadingCard
-import com.djihad.shopnite.ui.components.SearchField
+import com.djihad.shopnite.ui.components.SearchControlsRow
 import com.djihad.shopnite.ui.components.SectionHeading
 import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
@@ -48,10 +49,13 @@ fun CosmeticsScreen(
     filteredItems: List<CosmeticCardItem>,
     onSearchChange: (String) -> Unit,
     onSelectType: (String) -> Unit,
+    onSelectRarity: (String) -> Unit,
+    onSelectSort: (CosmeticSort) -> Unit,
     onSelectCollection: (String) -> Unit,
     onOpenCosmetic: (String) -> Unit,
 ) {
     val filterOptions = CosmeticFilters.orderedOptions(uiState.snapshot.items.map { it.filterLabel })
+    val rarityOptions = CosmeticFilters.orderedRarities(uiState.snapshot.items.map { it.rarityLabel })
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(144.dp),
@@ -92,10 +96,15 @@ fun CosmeticsScreen(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            SearchField(
+            SearchControlsRow(
                 query = uiState.searchQuery,
                 label = stringResource(R.string.cosmetics_search),
+                rarityOptions = rarityOptions,
+                selectedRarity = uiState.selectedRarity,
+                selectedSort = uiState.selectedSort,
                 onQueryChange = onSearchChange,
+                onRaritySelected = onSelectRarity,
+                onSortSelected = onSelectSort,
             )
         }
 

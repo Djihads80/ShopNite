@@ -1,6 +1,7 @@
 package com.djihad.shopnite.ui.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
@@ -41,9 +44,11 @@ import androidx.compose.ui.unit.dp
 import com.djihad.shopnite.R
 import coil.compose.AsyncImage
 import com.djihad.shopnite.model.CosmeticDetail
+import com.djihad.shopnite.model.CosmeticImageOption
 import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.InfoChip
 import com.djihad.shopnite.ui.components.LoadingCard
+import com.djihad.shopnite.ui.components.RarityPill
 import com.djihad.shopnite.ui.components.VbucksBadge
 import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
@@ -124,6 +129,9 @@ private fun CosmeticDetailContent(
         rarityLabel = cosmetic.rarityLabel,
         seriesName = cosmetic.seriesName,
     )
+    val imageOptions = cosmetic.imageOptions.ifEmpty {
+        cosmetic.imageUrl?.let { listOf(CosmeticImageOption("Default", it)) }.orEmpty()
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -136,42 +144,12 @@ private fun CosmeticDetailContent(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 Column {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(320.dp),
-                        contentAlignment = Alignment.BottomCenter,
-                    ) {
-                        if (rarityBackground != null) {
-                            AsyncImage(
-                                model = rarityBackground,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop,
-                            )
-                        } else {
-                            val gradient = cosmetic.paletteHexes.toComposeColors(
-                                defaultColors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    MaterialTheme.colorScheme.surface,
-                                ),
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Brush.verticalGradient(gradient)),
-                            )
-                        }
-                        AsyncImage(
-                            model = cosmetic.imageUrl,
-                            contentDescription = cosmetic.name,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter),
-                            contentScale = ContentScale.FillWidth,
-                        )
-                    }
+                    CosmeticImagePager(
+                        cosmeticName = cosmetic.name,
+                        paletteHexes = cosmetic.paletteHexes,
+                        rarityBackground = rarityBackground,
+                        imageOptions = imageOptions,
+                    )
                     Column(
                         modifier = Modifier.padding(18.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -220,7 +198,7 @@ private fun CosmeticDetailContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
-                        text = "Quick facts",
+                        text = "Info",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -238,13 +216,19 @@ private fun CosmeticDetailContent(
                         }
                     }
 
-                    DetailPriceRow(
-                        label = "Price",
-                        price = detail.currentShopItem?.price,
-                    )
-                    DetailRow("Rarity", cosmetic.rarityLabel)
+                    detail.currentShopItem?.let { shopItem ->
+                        DetailPriceRow(
+                            label = "Price",
+                            price = shopItem.price,
+                        )
+                    }
+                    DetailRarityRow("Rarity", cosmetic.rarityLabel)
                     DetailRow("Type", cosmetic.typeLabel)
-                    DetailRow("Leaving date", Formatters.formatDateTime(detail.currentShopItem?.outDate) ?: "Not in shop")
+                    detail.currentShopItem?.outDate?.let { outDate ->
+                        Formatters.formatDateTime(outDate)?.let { formatted ->
+                            DetailRow("Leaving date", formatted)
+                        }
+                    }
                     DetailRow("Added", Formatters.formatDate(cosmetic.addedDate) ?: "Unknown")
                 }
             }
@@ -307,10 +291,94 @@ private fun CosmeticDetailContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun CosmeticImagePager(
+    cosmeticName: String,
+    paletteHexes: List<String>,
+    rarityBackground: Int?,
+    imageOptions: List<CosmeticImageOption>,
+) {
+    val pagerState = rememberPagerState(pageCount = { imageOptions.size.coerceAtLeast(1) })
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(320.dp),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        if (rarityBackground != null) {
+            AsyncImage(
+                model = rarityBackground,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        } else {
+            val gradient = paletteHexes.toComposeColors(
+                defaultColors = listOf(
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    MaterialTheme.colorScheme.surface,
+                ),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Brush.verticalGradient(gradient)),
+            )
+        }
+
+        if (imageOptions.isNotEmpty()) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                key = { imageOptions[it].imageUrl },
+            ) { page ->
+                AsyncImage(
+                    model = imageOptions[page].imageUrl,
+                    contentDescription = cosmeticName,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillWidth,
+                )
+            }
+        }
+
+        if (imageOptions.size > 1) {
+            Text(
+                text = imageOptions[pagerState.currentPage].label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(14.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.72f),
+                        shape = MaterialTheme.shapes.small,
+                    )
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+            )
+            Text(
+                text = "${pagerState.currentPage + 1}/${imageOptions.size}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(14.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                        shape = MaterialTheme.shapes.small,
+                    )
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+            )
+        }
+    }
+}
+
 @Composable
 private fun DetailPriceRow(
     label: String,
-    price: Int?,
+    price: Int,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -322,25 +390,36 @@ private fun DetailPriceRow(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        if (price == null) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            VbucksBadge(modifier = Modifier.size(18.dp))
             Text(
-                text = "Not in shop",
+                text = "${Formatters.formatPrice(price)} V-Bucks",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
             )
-        } else {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                VbucksBadge(modifier = Modifier.size(18.dp))
-                Text(
-                    text = "${Formatters.formatPrice(price)} V-Bucks",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
         }
+    }
+}
+
+@Composable
+private fun DetailRarityRow(
+    label: String,
+    rarity: String,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        RarityPill(text = rarity)
     }
 }
 

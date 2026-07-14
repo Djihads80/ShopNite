@@ -34,7 +34,7 @@ private fun mappedAliases(token: String): List<String> = when (token) {
     "shadow", "shadowseries", "shadow_series" -> listOf("shadow")
     "slurp", "slurpseries", "slurp_series" -> listOf("slurp")
     "gaminglegends", "gaming_legends", "gaminglegendsseries", "gaming_legends_series" -> listOf("gaming_legends")
-    "crew", "fortnitecrew", "fortnite_crew" -> listOf("crew")
+    "crew", "crewseries", "crew_series", "fortnitecrew", "fortnite_crew" -> listOf("crew")
     "alanwalker", "alan_walker" -> listOf("alan_walker")
     "astonmartin", "aston_martin", "aston_martin_series" -> listOf("aston_martin_series")
     "mercedesbenz", "mercedes_benz" -> listOf("mercedes_benz")
@@ -57,10 +57,13 @@ private fun mappedAliases(token: String): List<String> = when (token) {
     "nissan" -> listOf("nissan")
     "mclaren" -> listOf("mclaren")
     "lamborghini" -> listOf("lamborghini")
+    "chrysler", "chryslerseries", "chrysler_series" -> listOf("chrysler")
+    "hyundai", "hyundaiseries", "hyundai_series" -> listOf("hyundai")
     else -> fuzzyAliases(token) + token
 }
 
 private fun fuzzyAliases(token: String): List<String> = buildList {
+    if ("crew" in token) add("crew")
     if ("star_wars" in token) add("star_wars")
     if ("alan_walker" in token) add("alan_walker")
     if ("aston_martin" in token) add("aston_martin_series")
@@ -83,6 +86,8 @@ private fun fuzzyAliases(token: String): List<String> = buildList {
     if ("nissan" in token) add("nissan")
     if ("mclaren" in token) add("mclaren")
     if ("lamborghini" in token) add("lamborghini")
+    if ("chrysler" in token) add("chrysler")
+    if ("hyundai" in token) add("hyundai")
 }
 
 private fun normalizeRarityToken(value: String): String =

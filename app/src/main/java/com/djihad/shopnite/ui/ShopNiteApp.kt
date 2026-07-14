@@ -168,6 +168,8 @@ fun ShopNiteApp() {
                     filteredItems = viewModel.filteredItems(),
                     onSearchChange = viewModel::updateSearch,
                     onSelectType = viewModel::selectType,
+                    onSelectRarity = viewModel::selectRarity,
+                    onSelectSort = viewModel::selectSort,
                     onOpenCosmetic = { navController.navigate(cosmeticDetailRoute(it)) },
                 )
             }
@@ -179,6 +181,8 @@ fun ShopNiteApp() {
                     filteredItems = viewModel.filteredItems(),
                     onSearchChange = viewModel::updateSearch,
                     onSelectType = viewModel::selectType,
+                    onSelectRarity = viewModel::selectRarity,
+                    onSelectSort = viewModel::selectSort,
                     onSelectCollection = viewModel::selectCollection,
                     onOpenCosmetic = { navController.navigate(cosmeticDetailRoute(it)) },
                 )

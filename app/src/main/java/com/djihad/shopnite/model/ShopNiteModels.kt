@@ -85,6 +85,12 @@ data class CosmeticCardItem(
     val lastAppearance: String?,
     val isNew: Boolean,
     val source: CosmeticSource,
+    val imageOptions: List<CosmeticImageOption> = emptyList(),
+)
+
+data class CosmeticImageOption(
+    val label: String,
+    val imageUrl: String,
 )
 
 data class ShopItem(
@@ -112,6 +118,7 @@ data class ShopItem(
     val bannerText: String?,
     val sectionName: String?,
     val addedDate: String?,
+    val source: CosmeticSource,
 )
 
 data class ShopSnapshot(
@@ -186,4 +193,24 @@ object CosmeticFilters {
             .sorted()
         return listOf(All) + known + extras
     }
+
+    fun orderedRarities(present: Collection<String>): List<String> {
+        val labels = present
+            .filter { it.isNotBlank() }
+            .toSet()
+        val base = listOf("Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic")
+            .filter(labels::contains)
+        val extras = labels
+            .filterNot(base::contains)
+            .sorted()
+        return listOf(All) + base + extras
+    }
+}
+
+enum class CosmeticSort(val label: String) {
+    NewestFirst("Newest First"),
+    OldestFirst("Oldest First"),
+    Series("Series"),
+    AToZ("A to Z"),
+    ZToA("Z to A"),
 }

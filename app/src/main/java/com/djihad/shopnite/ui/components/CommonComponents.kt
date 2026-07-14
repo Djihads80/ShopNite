@@ -1,6 +1,8 @@
 package com.djihad.shopnite.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -12,18 +14,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -32,6 +45,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.djihad.shopnite.R
 import com.djihad.shopnite.model.CosmeticFilters
+import com.djihad.shopnite.model.CosmeticSort
+import com.djihad.shopnite.ui.rarityPillColors
 
 @Composable
 fun ErrorCard(
@@ -113,6 +128,111 @@ fun SearchField(
             )
         },
     )
+}
+
+@Composable
+fun SearchControlsRow(
+    query: String,
+    label: String,
+    rarityOptions: List<String>,
+    selectedRarity: String,
+    selectedSort: CosmeticSort,
+    onQueryChange: (String) -> Unit,
+    onRaritySelected: (String) -> Unit,
+    onSortSelected: (CosmeticSort) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var rarityExpanded by remember { mutableStateOf(false) }
+    var sortExpanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SearchField(
+            query = query,
+            label = label,
+            onQueryChange = onQueryChange,
+            modifier = Modifier.weight(1f),
+        )
+        Box {
+            IconButton(onClick = { rarityExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = "Filter rarity",
+                    tint = if (selectedRarity == CosmeticFilters.All) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
+                )
+            }
+            DropdownMenu(
+                expanded = rarityExpanded,
+                onDismissRequest = { rarityExpanded = false },
+            ) {
+                rarityOptions.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            if (option == CosmeticFilters.All) {
+                                Text(stringResource(R.string.common_all))
+                            } else {
+                                RarityPill(text = option)
+                            }
+                        },
+                        onClick = {
+                            onRaritySelected(option)
+                            rarityExpanded = false
+                        },
+                    )
+                }
+            }
+        }
+        Box {
+            IconButton(onClick = { sortExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Default.Sort,
+                    contentDescription = "Sort cosmetics",
+                )
+            }
+            DropdownMenu(
+                expanded = sortExpanded,
+                onDismissRequest = { sortExpanded = false },
+            ) {
+                CosmeticSort.entries.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option.label) },
+                        onClick = {
+                            onSortSelected(option)
+                            sortExpanded = false
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RarityPill(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = rarityPillColors(text)
+    Surface(
+        modifier = modifier,
+        shape = CircleShape,
+        color = colors.background,
+        contentColor = colors.content,
+        border = BorderStroke(1.dp, colors.content),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+        )
+    }
 }
 
 @Composable

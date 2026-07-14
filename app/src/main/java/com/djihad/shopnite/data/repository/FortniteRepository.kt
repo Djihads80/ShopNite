@@ -14,23 +14,27 @@ import com.djihad.shopnite.model.BrSummary
 import com.djihad.shopnite.model.CatalogSnapshot
 import com.djihad.shopnite.model.CosmeticCardItem
 import com.djihad.shopnite.model.CosmeticDetail
+import com.djihad.shopnite.model.CosmeticImageOption
 import com.djihad.shopnite.model.CosmeticSource
 import com.djihad.shopnite.model.NewsCard
 import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.model.ShopSnapshot
 import com.djihad.shopnite.model.SummaryStat
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import java.text.NumberFormat
 import java.util.Locale
 
 class FortniteRepository(
     private val apiService: FortniteApiService,
 ) {
+    private val catalogCache = mutableMapOf<String, CatalogSnapshot>()
+
     suspend fun getBattleRoyaleNews(language: String): List<NewsCard> {
         val data = apiService.getBattleRoyaleNews(language).data
         return data.motds
@@ -102,6 +106,8 @@ class FortniteRepository(
     }
 
     suspend fun getCatalog(language: String): CatalogSnapshot {
+        catalogCache[language]?.let { return it }
+
         val all = loadStage("all cosmetics") { apiService.getAllCosmetics(language).data }
         val newIds = loadStage("new cosmetics") { apiService.getNewCosmetics(language).data.items.allIds() }
 
@@ -115,6 +121,7 @@ class FortniteRepository(
         }.sortedBy { it.name.lowercase(Locale.getDefault()) }
 
         return CatalogSnapshot(items = items, newIds = newIds)
+            .also { catalogCache[language] = it }
     }
 
     suspend fun getCosmeticDetail(language: String, cosmeticId: String): CosmeticDetail? {
@@ -163,6 +170,11 @@ class FortniteRepository(
             lastAppearance = lastAppearance,
             isNew = isNew,
             source = source,
+            imageOptions = imageOptions(
+                baseImageUrl = images.bestImageUrl(),
+                legoImageUrl = images?.lego,
+                variants = variants,
+            ),
         )
 
     private fun CarCosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem =
@@ -235,9 +247,10 @@ class FortniteRepository(
         vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
-        bannerText = offerTag?.text ?: banner?.value,
+        bannerText = banner?.value,
         sectionName = layout?.name ?: layout?.category,
         addedDate = item.added,
+        source = source,
     )
 
     private fun ShopEntry.toShopItem(
@@ -266,9 +279,10 @@ class FortniteRepository(
         vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
-        bannerText = offerTag?.text ?: banner?.value,
+        bannerText = banner?.value,
         sectionName = layout?.name ?: layout?.category,
         addedDate = item.added,
+        source = source,
     )
 
     private fun ShopEntry.toShopItem(
@@ -297,9 +311,10 @@ class FortniteRepository(
         vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
-        bannerText = offerTag?.text ?: banner?.value,
+        bannerText = banner?.value,
         sectionName = layout?.name ?: layout?.category,
         addedDate = item.added,
+        source = source,
     )
 
     private fun NewCosmeticsItems.allIds(): Set<String> = buildSet {
@@ -316,6 +331,64 @@ class FortniteRepository(
 
     private fun CosmeticImages?.bestShopImageUrl(displayImage: String?, bundleImage: String?): String? =
         bestImageUrl() ?: displayImage ?: bundleImage
+
+    private fun imageOptions(
+        baseImageUrl: String?,
+        legoImageUrl: String?,
+        variants: List<JsonElement>,
+    ): List<CosmeticImageOption> = buildList {
+        baseImageUrl?.takeIf { it.isNotBlank() }?.let {
+            add(CosmeticImageOption("Default", it))
+        }
+        variants.flatMapIndexed { index, variant ->
+            variant.extractVariantImages(fallbackLabel = "Style ${index + 1}")
+        }.forEach { option ->
+            if (none { it.imageUrl == option.imageUrl }) {
+                add(option)
+            }
+        }
+        legoImageUrl?.takeIf { it.isNotBlank() }?.let {
+            if (none { option -> option.imageUrl == it }) {
+                add(CosmeticImageOption("LEGO", it))
+            }
+        }
+    }
+
+    private fun JsonElement.extractVariantImages(fallbackLabel: String): List<CosmeticImageOption> = when (this) {
+        is JsonArray -> flatMapIndexed { index, element ->
+            element.extractVariantImages("$fallbackLabel ${index + 1}")
+        }
+        is JsonObject -> {
+            val label = variantLabel() ?: fallbackLabel
+            val directImage = variantImageUrl()
+            val nested = values.flatMapIndexed { index, element ->
+                element.extractVariantImages("$label ${index + 1}")
+            }
+            buildList {
+                directImage?.let { add(CosmeticImageOption(label, it)) }
+                addAll(nested)
+            }
+        }
+        else -> emptyList()
+    }
+
+    private fun JsonObject.variantLabel(): String? =
+        stringAt("name")
+            ?: stringAt("displayName")
+            ?: stringAt("tag")
+            ?: stringAt("channel")
+            ?: objectAt("variant")?.stringAt("name")
+
+    private fun JsonObject.variantImageUrl(): String? {
+        val imageKeys = listOf("image", "icon", "smallIcon", "featured", "url", "previewImage", "preview")
+        return imageKeys.firstNotNullOfOrNull { key ->
+            when (val element = this[key]) {
+                is JsonPrimitive -> element.contentOrNull?.takeIf { it.startsWith("http") }
+                is JsonObject -> element.variantImageUrl()
+                else -> null
+            }
+        }
+    }
 
     private fun ShopColors?.toTileHexes(): List<String> = listOfNotNull(
         this?.color1,
@@ -416,7 +489,7 @@ class FortniteRepository(
         else -> listOf("2A5CAAFF", "1A2341FF", "090C17FF")
     }
 
-    private fun JsonObject.objectAt(key: String): JsonObject? = this[key]?.jsonObject
+    private fun JsonObject.objectAt(key: String): JsonObject? = this[key] as? JsonObject
 
     private fun JsonObject.stringAt(key: String): String? = (this[key] as? JsonPrimitive)?.contentOrSafe()
 
