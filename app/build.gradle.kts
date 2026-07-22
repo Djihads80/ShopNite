@@ -85,6 +85,7 @@ dependencies {
     // Retrofit for networking
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Kotlinx Serialization for JSON parsing
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
@@ -108,4 +109,7 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
     implementation("com.google.firebase:firebase-messaging")
+
+    // Material Icons Extended for more icon options
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.8")
 }
