@@ -19,15 +19,14 @@ val localProperties = Properties().apply {
 android {
     signingConfigs {
         create("release") {
-            val storeFile = rootProject.file("app/my-release-key.jks")
+            val storeFile = rootProject.file("release.keystore")
             if (storeFile.exists()) {
                 this.storeFile = storeFile
-                this.storePassword = localProperties.getProperty("storePassword") ?: System.getenv("SIGNING_STORE_PASSWORD")
-                this.keyAlias = localProperties.getProperty("keyAlias") ?: System.getenv("SIGNING_KEY_ALIAS")
-                this.keyPassword = localProperties.getProperty("keyPassword") ?: System.getenv("SIGNING_KEY_PASSWORD")
+                this.storePassword = localProperties.getProperty("storePassword") ?: System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                this.keyAlias = localProperties.getProperty("keyAlias") ?: System.getenv("RELEASE_KEY_ALIAS")
+                this.keyPassword = localProperties.getProperty("keyPassword") ?: System.getenv("RELEASE_KEY_PASSWORD")
             } else {
                 println("Signing key not found. Using debug signing for release.")
-                signingConfig = signingConfigs.getByName("debug")
             }
         }
     }
@@ -60,7 +59,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (signingConfigs.getByName("release").storeFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
