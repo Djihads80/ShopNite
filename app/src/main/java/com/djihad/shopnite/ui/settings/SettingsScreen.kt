@@ -299,6 +299,18 @@ fun SettingsScreen(
                 }
             }
         }
+
+        item {
+            Text(
+                text = stringResource(R.string.epic_games_disclaimer),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .padding(horizontal = 4.dp)
+            )
+        }
     }
 }
 
@@ -384,18 +396,6 @@ private fun LanguageCard(
                     )
                 }
             }
-        }
-
-        item {
-            Text(
-                text = stringResource(R.string.epic_games_disclaimer),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-                    .padding(horizontal = 4.dp)
-            )
         }
     }
 }
