@@ -104,12 +104,12 @@ class FortniteRepository(
         val newIds = loadStage("new cosmetics") { apiService.getNewCosmetics(language).data.items.allIds() }
 
         val items = buildList {
-            addAll(all.br.map { it.toCatalogItem(CosmeticSource.BattleRoyale, it.id in newIds) })
-            addAll(all.cars.map { it.toCatalogItem(CosmeticSource.Cars, it.id in newIds) })
-            addAll(all.tracks.map { it.toCatalogItem(CosmeticSource.Tracks, it.id in newIds) })
-            addAll(all.lego.map { it.toCatalogItem(CosmeticSource.Lego, it.id in newIds) })
-            addAll(all.legoKits.map { it.toCatalogItem(CosmeticSource.LegoKits, it.id in newIds) })
-            addAll(all.instruments.map { it.toCatalogItem(CosmeticSource.Instruments, it.id in newIds) })
+            addAll(all.br.mapNotNull { it.toCatalogItem(CosmeticSource.BattleRoyale, it.id in newIds) })
+            addAll(all.cars.mapNotNull { it.toCatalogItem(CosmeticSource.Cars, it.id in newIds) })
+            addAll(all.tracks.mapNotNull { it.toCatalogItem(CosmeticSource.Tracks, it.id in newIds) })
+            addAll(all.lego.mapNotNull { it.toCatalogItem(CosmeticSource.Lego, it.id in newIds) })
+            addAll(all.legoKits.mapNotNull { it.toCatalogItem(CosmeticSource.LegoKits, it.id in newIds) })
+            addAll(all.instruments.mapNotNull { it.toCatalogItem(CosmeticSource.Instruments, it.id in newIds) })
         }.sortedBy { it.name.lowercase(Locale.getDefault()) }
 
         return CatalogSnapshot(items = items, newIds = newIds)
@@ -144,7 +144,7 @@ class FortniteRepository(
         imageUrl = tileImage ?: image ?: fallbackImage.orEmpty(),
     )
 
-    private fun CosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem =
+    private fun CosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem? =
         CosmeticCardItem(
             id = id,
             name = name.orEmpty().ifBlank { cosmeticId ?: id },
@@ -170,9 +170,9 @@ class FortniteRepository(
                 legoImageUrl = images?.lego,
                 variants = variants,
             ),
-        ).takeUnless { it.name.startsWithHiddenPrefix() } ?: return null
+        ).takeUnless { it.name.startsWithHiddenPrefix() }
 
-    private fun CarCosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem =
+    private fun CarCosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem? =
         CosmeticCardItem(
             id = id,
             name = name.orEmpty(),
@@ -192,9 +192,9 @@ class FortniteRepository(
             lastAppearance = lastAppearance,
             isNew = isNew,
             source = source,
-        ).takeUnless { it.name.startsWithHiddenPrefix() } ?: return null
+        ).takeUnless { it.name.startsWithHiddenPrefix() }
 
-    private fun TrackCosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem =
+    private fun TrackCosmeticItem.toCatalogItem(source: CosmeticSource, isNew: Boolean): CosmeticCardItem? =
         CosmeticCardItem(
             id = id,
             name = title.orEmpty().ifBlank { devName.orEmpty() },
@@ -214,7 +214,7 @@ class FortniteRepository(
             lastAppearance = lastAppearance,
             isNew = isNew,
             source = source,
-        ).takeUnless { it.name.startsWithHiddenPrefix() } ?: return null
+        ).takeUnless { it.name.startsWithHiddenPrefix() }
 
     private fun ShopEntry.toShopItem(vbuckIconUrl: String?): ShopItem? {
         val bundledIds = bundledCosmeticIds()
