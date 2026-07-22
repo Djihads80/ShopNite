@@ -80,4 +80,5 @@
     <string name="credits_debug_toast_countdown_many">You are now %1$d touches away from becomming a debugger</string>
     <string name="credits_debug_toast_countdown_one">You are now 1 touch away from becomming a debugger</string>
     <string name="credits_debug_toast_success">You are now a debugger!</string>
+    <string name="epic_games_disclaimer">Portions of the materials used are trademarks and/or copyrighted works of Epic Games, Inc. All rights reserved by Epic. This material is not official and is not endorsed by Epic.</string>
 </resources>
