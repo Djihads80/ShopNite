@@ -2,6 +2,8 @@
 .gradle
 app/google-services.json
 local.properties
+*.keystore
+*.jks
 /.idea
 /build
 /captures

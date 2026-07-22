@@ -104,12 +104,12 @@ class FortniteRepository(
         val newIds = loadStage("new cosmetics") { apiService.getNewCosmetics(language).data.items.allIds() }
 
         val items = buildList {
-            addAll(all.br.map { it.toCatalogItem(CosmeticSource.BattleRoyale, it.id in newIds) })
-            addAll(all.cars.map { it.toCatalogItem(CosmeticSource.Cars, it.id in newIds) })
-            addAll(all.tracks.map { it.toCatalogItem(CosmeticSource.Tracks, it.id in newIds) })
-            addAll(all.lego.map { it.toCatalogItem(CosmeticSource.Lego, it.id in newIds) })
-            addAll(all.legoKits.map { it.toCatalogItem(CosmeticSource.LegoKits, it.id in newIds) })
-            addAll(all.instruments.map { it.toCatalogItem(CosmeticSource.Instruments, it.id in newIds) })
+            addAll(all.br.filterNot { it.isHiddenLegoOutfit() }.map { it.toCatalogItem(CosmeticSource.BattleRoyale, it.id in newIds) })
+            addAll(all.cars.filterNot { it.isHiddenLegoOutfit() }.map { it.toCatalogItem(CosmeticSource.Cars, it.id in newIds) })
+            addAll(all.tracks.filterNot { it.isHiddenLegoOutfit() }.map { it.toCatalogItem(CosmeticSource.Tracks, it.id in newIds) })
+            addAll(all.lego.filterNot { it.isHiddenLegoOutfit() }.map { it.toCatalogItem(CosmeticSource.Lego, it.id in newIds) })
+            addAll(all.legoKits.filterNot { it.isHiddenLegoOutfit() }.map { it.toCatalogItem(CosmeticSource.LegoKits, it.id in newIds) })
+            addAll(all.instruments.filterNot { it.isHiddenLegoOutfit() }.map { it.toCatalogItem(CosmeticSource.Instruments, it.id in newIds) })
         }.sortedBy { it.name.lowercase(Locale.getDefault()) }
 
         return CatalogSnapshot(items = items, newIds = newIds)
@@ -222,11 +222,11 @@ class FortniteRepository(
             return toBundleShopItem(vbuckIconUrl, bundledIds)
         }
 
-        return brItems.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.BattleRoyale, bundledIds) }
-            ?: cars.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Cars, bundledIds) }
-            ?: tracks.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Tracks, bundledIds) }
-            ?: legoKits.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.LegoKits, bundledIds) }
-            ?: instruments.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Instruments, bundledIds) }
+        return brItems.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.BattleRoyale, bundledIds) }
+            ?: cars.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Cars, bundledIds) }
+            ?: tracks.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Tracks, bundledIds) }
+            ?: legoKits.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.LegoKits, bundledIds) }
+            ?: instruments.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Instruments, bundledIds) }
     }
 
     private fun ShopEntry.toBundleShopItem(
@@ -368,11 +368,11 @@ class FortniteRepository(
     )
 
     private fun ShopEntry.primaryOfferCosmetic(): ShopItem? =
-        brItems.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.BattleRoyale, bundledCosmeticIds()) }
-            ?: cars.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Cars, bundledCosmeticIds()) }
-            ?: tracks.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Tracks, bundledCosmeticIds()) }
-            ?: legoKits.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.LegoKits, bundledCosmeticIds()) }
-            ?: instruments.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Instruments, bundledCosmeticIds()) }
+        brItems.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, null, CosmeticSource.BattleRoyale, bundledCosmeticIds()) }
+            ?: cars.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, null, CosmeticSource.Cars, bundledCosmeticIds()) }
+            ?: tracks.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, null, CosmeticSource.Tracks, bundledCosmeticIds()) }
+            ?: legoKits.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, null, CosmeticSource.LegoKits, bundledCosmeticIds()) }
+            ?: instruments.firstOrNull { !it.isHiddenLegoOutfit() }?.let { toShopItem(it, null, CosmeticSource.Instruments, bundledCosmeticIds()) }
 
     private fun ShopEntry.bundledCosmeticIds(): Set<String> =
         buildSet {
@@ -543,7 +543,11 @@ class FortniteRepository(
         val normalized = trim()
             .replace(Regex("\\s+"), " ")
             .lowercase(Locale.getDefault())
-        if (normalized == "gaming legends series") return "Gaming Legends Series"
+        when (normalized) {
+            "gaming legends series" -> return "Gaming Legends Series"
+            "dc series" -> return "DC Series"
+            "bmw series" -> return "BMW Series"
+        }
         return normalized
             .split(" ")
             .joinToString(" ") { word ->
@@ -552,6 +556,15 @@ class FortniteRepository(
                 }
             }
     }
+
+    private fun CosmeticItem.isHiddenLegoOutfit(): Boolean =
+        name.orEmpty().startsWith("Character_")
+
+    private fun CarCosmeticItem.isHiddenLegoOutfit(): Boolean =
+        name.orEmpty().startsWith("Character_")
+
+    private fun TrackCosmeticItem.isHiddenLegoOutfit(): Boolean =
+        title.orEmpty().startsWith("Character_") || devName.orEmpty().startsWith("Character_")
 
     private suspend fun <T> loadStage(label: String, block: suspend () -> T): T = try {
         block()

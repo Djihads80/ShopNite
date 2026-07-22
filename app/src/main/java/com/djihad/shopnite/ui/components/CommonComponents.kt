@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.djihad.shopnite.R
 import com.djihad.shopnite.model.CosmeticFilters
 import com.djihad.shopnite.model.CosmeticSort
+import com.djihad.shopnite.ui.RarityPillColors
 import com.djihad.shopnite.ui.rarityPillColors
 
 @Composable
@@ -298,7 +299,13 @@ fun RarityPill(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    val colors = rarityPillColors(text)
+    val colors = rarityPillColors(
+        rarityLabel = text,
+        fallback = RarityPillColors(
+            background = MaterialTheme.colorScheme.secondaryContainer,
+            content = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
+    )
     Surface(
         modifier = modifier,
         shape = CircleShape,

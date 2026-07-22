@@ -23,6 +23,25 @@ val fortniteApiKey = providers.gradleProperty("fortniteApiKey").orNull
     ?: localProperties.getProperty("fortniteApiKey")
     ?: ""
 
+val releaseKeystoreFile = providers.gradleProperty("releaseKeystoreFile").orNull
+    ?: providers.environmentVariable("RELEASE_KEYSTORE_FILE").orNull
+    ?: localProperties.getProperty("releaseKeystoreFile")
+val releaseKeystorePassword = providers.gradleProperty("releaseKeystorePassword").orNull
+    ?: providers.environmentVariable("RELEASE_KEYSTORE_PASSWORD").orNull
+    ?: localProperties.getProperty("releaseKeystorePassword")
+val releaseKeyAlias = providers.gradleProperty("releaseKeyAlias").orNull
+    ?: providers.environmentVariable("RELEASE_KEY_ALIAS").orNull
+    ?: localProperties.getProperty("releaseKeyAlias")
+val releaseKeyPassword = providers.gradleProperty("releaseKeyPassword").orNull
+    ?: providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull
+    ?: localProperties.getProperty("releaseKeyPassword")
+val hasReleaseSigningConfig = listOf(
+    releaseKeystoreFile,
+    releaseKeystorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword,
+).all { !it.isNullOrBlank() }
+
 fun asBuildConfigString(value: String): String = "\"${value
     .replace("\\", "\\\\")
     .replace("\"", "\\\"")}\""
@@ -35,8 +54,8 @@ android {
         applicationId = "com.djihad.shopnite"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 5
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "FORTNITE_API_KEY", asBuildConfigString(fortniteApiKey.trim()))
@@ -45,9 +64,23 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                storeFile = rootProject.file(checkNotNull(releaseKeystoreFile))
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (hasReleaseSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
