@@ -25,6 +25,7 @@ private fun mappedAliases(token: String): List<String> = when (token) {
     "epic" -> listOf("epic")
     "legendary" -> listOf("legendary")
     "mythic" -> listOf("mythic")
+    "unknown" -> listOf("unknown")
     "dark", "darkseries", "dark_series" -> listOf("dark")
     "marvel", "marvelseries", "marvel_series" -> listOf("marvel")
     "dc", "dcseries", "dc_series" -> listOf("dc")
