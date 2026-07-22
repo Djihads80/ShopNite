@@ -557,16 +557,6 @@ class FortniteRepository(
             }
     }
 
-    private fun CosmeticItem.isHiddenItem(): Boolean = name.startsWithHiddenPrefix()
-
-    private fun CarCosmeticItem.isHiddenItem(): Boolean = name.startsWithHiddenPrefix()
-
-    private fun TrackCosmeticItem.isHiddenItem(): Boolean =
-        title.startsWithHiddenPrefix() || devName.startsWithHiddenPrefix()
-
-    private fun String?.startsWithHiddenPrefix(): Boolean =
-        !this.isNullOrBlank() && (startsWith("Character_") || startsWith("CID_"))
-
     private suspend fun <T> loadStage(label: String, block: suspend () -> T): T = try {
         block()
     } catch (throwable: Throwable) {
