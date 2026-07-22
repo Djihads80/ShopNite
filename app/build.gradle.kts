@@ -92,4 +92,7 @@ dependencies {
 
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // Add AppCompat to resolve theme errors from transitive dependencies
+    implementation("androidx.appcompat:appcompat:1.7.0")
 }
