@@ -1,152 +1,86 @@
 import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("org.jetbrains.kotlin.plugin.serialization")
-}
-
-if (file("google-services.json").exists()) {
-    apply(plugin = "com.google.gms.google-services")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        file.inputStream().use(::load)
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(FileInputStream(localPropertiesFile))
     }
 }
 
-val fortniteApiKey = providers.gradleProperty("fortniteApiKey").orNull
-    ?: providers.environmentVariable("FORTNITE_API_KEY").orNull
-    ?: localProperties.getProperty("fortniteApiKey")
-    ?: ""
-
-val releaseKeystoreFile = providers.gradleProperty("releaseKeystoreFile").orNull
-    ?: providers.environmentVariable("RELEASE_KEYSTORE_FILE").orNull
-    ?: localProperties.getProperty("releaseKeystoreFile")
-val releaseKeystorePassword = providers.gradleProperty("releaseKeystorePassword").orNull
-    ?: providers.environmentVariable("RELEASE_KEYSTORE_PASSWORD").orNull
-    ?: localProperties.getProperty("releaseKeystorePassword")
-val releaseKeyAlias = providers.gradleProperty("releaseKeyAlias").orNull
-    ?: providers.environmentVariable("RELEASE_KEY_ALIAS").orNull
-    ?: localProperties.getProperty("releaseKeyAlias")
-val releaseKeyPassword = providers.gradleProperty("releaseKeyPassword").orNull
-    ?: providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull
-    ?: localProperties.getProperty("releaseKeyPassword")
-val hasReleaseSigningConfig = listOf(
-    releaseKeystoreFile,
-    releaseKeystorePassword,
-    releaseKeyAlias,
-    releaseKeyPassword,
-).all { !it.isNullOrBlank() }
-
-fun asBuildConfigString(value: String): String = "\"${value
-    .replace("\\", "\\\\")
-    .replace("\"", "\\\"")}\""
-
 android {
     namespace = "com.djihad.shopnite"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.djihad.shopnite"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 5
-        versionName = "1.4"
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "FORTNITE_API_KEY", asBuildConfigString(fortniteApiKey.trim()))
         vectorDrawables {
             useSupportLibrary = true
         }
-    }
 
-    signingConfigs {
-        if (hasReleaseSigningConfig) {
-            create("release") {
-                storeFile = rootProject.file(checkNotNull(releaseKeystoreFile))
-                storePassword = releaseKeystorePassword
-                keyAlias = releaseKeyAlias
-                keyPassword = releaseKeyPassword
-            }
-        }
+        val fortniteApiKey = localProperties.getProperty("fortniteApiKey")
+            ?: System.getenv("FORTNITE_API_KEY")
+            ?: ""
+        buildConfigField("String", "FORTNITE_API_KEY", "\"$fortniteApiKey\"")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            if (hasReleaseSigningConfig) {
-                signingConfig = signingConfigs.getByName("release")
-            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
+                "proguard-rules.pro"
             )
         }
     }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
-
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
-
     buildFeatures {
         compose = true
         buildConfig = true
     }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    aaptOptions {
+        cruncherEnabled = false
+    }
 }
 
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.12.01"))
-    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
-
-    implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.activity:activity-compose:1.9.3")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-    implementation("androidx.navigation:navigation-compose:2.8.5")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("androidx.work:work-runtime-ktx:2.10.0")
-
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.runtime:runtime-saveable")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-
-    implementation("com.google.firebase:firebase-messaging")
-    implementation("io.coil-kt:coil-compose:2.7.0")
-
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.retrofit)
+    implementation(libs.converter.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.okhttp)
+    implementation(libs.coil.compose)
 }
