@@ -17,6 +17,21 @@ val localProperties = Properties().apply {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            val storeFile = rootProject.file("app/my-release-key.jks")
+            if (storeFile.exists()) {
+                this.storeFile = storeFile
+                this.storePassword = localProperties.getProperty("storePassword") ?: System.getenv("SIGNING_STORE_PASSWORD")
+                this.keyAlias = localProperties.getProperty("keyAlias") ?: System.getenv("SIGNING_KEY_ALIAS")
+                this.keyPassword = localProperties.getProperty("keyPassword") ?: System.getenv("SIGNING_KEY_PASSWORD")
+            } else {
+                println("Signing key not found. Using debug signing for release.")
+                signingConfig = signingConfigs.getByName("debug")
+            }
+        }
+    }
+
     namespace = "com.djihad.shopnite"
     compileSdk = 35
 
@@ -40,11 +55,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
