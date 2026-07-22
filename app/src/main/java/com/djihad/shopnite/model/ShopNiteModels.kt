@@ -95,6 +95,8 @@ data class CosmeticImageOption(
 
 data class ShopItem(
     val cosmeticId: String,
+    val bundledCosmeticIds: Set<String> = emptySet(),
+    val isBundle: Boolean = false,
     val offerId: String,
     val name: String,
     val subtitle: String?,

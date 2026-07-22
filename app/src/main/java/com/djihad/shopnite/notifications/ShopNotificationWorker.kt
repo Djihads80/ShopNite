@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.djihad.shopnite.ShopNiteApplication
+import com.djihad.shopnite.model.ShopItem
 import com.djihad.shopnite.util.Formatters
 import kotlinx.coroutines.flow.first
 
@@ -28,10 +29,17 @@ class ShopNotificationWorker(
         return runCatching {
             NotificationChannels.create(applicationContext)
             val shop = repository.getWishlistMatches(settings.apiLanguageTag, settings.wishlist)
-            val currentIds = shop.items.map { it.cosmeticId }.toSet()
+            val currentIds = shop.items.flatMap { item ->
+                listOf(item.cosmeticId) + item.bundledCosmeticIds
+            }.filter { it in settings.wishlist }.toSet()
 
             if (settings.notifyWishlistReturns) {
-                val freshReturns = shop.items.filter { it.cosmeticId !in settings.notifiedReturnIds }
+                val freshReturns = shop.items
+                    .filter { item ->
+                        item.matchingWishlistIds(settings.wishlist)
+                            .any { it !in settings.notifiedReturnIds }
+                    }
+                    .distinctBy { item -> item.matchingWishlistIds(settings.wishlist).firstOrNull() ?: item.cosmeticId }
                 freshReturns.forEach { item ->
                     ShopItemNotifications.showWishlistReturn(applicationContext, item)
                 }
@@ -66,4 +74,7 @@ class ShopNotificationWorker(
             Manifest.permission.POST_NOTIFICATIONS,
         ) == PackageManager.PERMISSION_GRANTED
     }
+
+    private fun ShopItem.matchingWishlistIds(wishlist: Set<String>): List<String> =
+        (listOf(cosmeticId) + bundledCosmeticIds).filter { it in wishlist }
 }

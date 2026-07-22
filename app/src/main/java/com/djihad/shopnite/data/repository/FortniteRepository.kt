@@ -87,15 +87,7 @@ class FortniteRepository(
 
     suspend fun getShop(language: String): ShopSnapshot {
         val data = apiService.getShop(language).data
-        val items = data.entries.flatMap { entry ->
-            buildList {
-                entry.brItems.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.BattleRoyale)) }
-                entry.cars.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Cars)) }
-                entry.tracks.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Tracks)) }
-                entry.legoKits.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.LegoKits)) }
-                entry.instruments.forEach { add(entry.toShopItem(it, data.vbuckIcon, CosmeticSource.Instruments)) }
-            }
-        }
+        val items = data.entries.mapNotNull { entry -> entry.toShopItem(data.vbuckIcon) }
 
         return ShopSnapshot(
             shopDate = data.date,
@@ -139,7 +131,9 @@ class FortniteRepository(
 
     suspend fun getWishlistMatches(language: String, wishlist: Set<String>): ShopSnapshot {
         val shop = getShop(language)
-        return shop.copy(items = shop.items.filter { it.cosmeticId in wishlist })
+        return shop.copy(items = shop.items.filter { item ->
+            item.cosmeticId in wishlist || item.bundledCosmeticIds.any { it in wishlist }
+        })
     }
 
     private fun BattleRoyaleMotd.toNewsCard(fallbackImage: String?): NewsCard = NewsCard(
@@ -159,11 +153,11 @@ class FortniteRepository(
             typeLabel = typeLabelFor(type?.value, type?.displayValue, source),
             typeValue = normalizeTypeValue(type?.value, source),
             filterLabel = filterLabelFor(type?.value, type?.displayValue, source),
-            rarityLabel = series?.value ?: rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
+            rarityLabel = rarityLabelFor(series?.value, rarity?.displayValue),
             rarityKey = series?.backendValue ?: rarity?.value.orEmpty(),
-            seriesName = series?.value,
+            seriesName = series?.value?.toDisplayRarityLabel(),
             seriesImage = series?.image,
-            paletteHexes = series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(rarity?.displayValue),
+            paletteHexes = series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(rarityLabelFor(null, rarity?.displayValue)),
             imageUrl = images.bestImageUrl(),
             addedDate = added,
             shopHistory = shopHistory,
@@ -187,11 +181,11 @@ class FortniteRepository(
             typeLabel = typeLabelFor(type?.value, type?.displayValue, source),
             typeValue = normalizeTypeValue(type?.value, source),
             filterLabel = filterLabelFor(type?.value, type?.displayValue, source),
-            rarityLabel = series?.value ?: rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
+            rarityLabel = rarityLabelFor(series?.value, rarity?.displayValue),
             rarityKey = series?.backendValue ?: rarity?.value.orEmpty(),
-            seriesName = series?.value,
+            seriesName = series?.value?.toDisplayRarityLabel(),
             seriesImage = series?.image,
-            paletteHexes = series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(rarity?.displayValue),
+            paletteHexes = series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(rarityLabelFor(null, rarity?.displayValue)),
             imageUrl = images.bestImageUrl(),
             addedDate = added,
             shopHistory = shopHistory,
@@ -222,12 +216,63 @@ class FortniteRepository(
             source = source,
         )
 
+    private fun ShopEntry.toShopItem(vbuckIconUrl: String?): ShopItem? {
+        val bundledIds = bundledCosmeticIds()
+        if (bundle != null) {
+            return toBundleShopItem(vbuckIconUrl, bundledIds)
+        }
+
+        return brItems.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.BattleRoyale, bundledIds) }
+            ?: cars.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Cars, bundledIds) }
+            ?: tracks.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Tracks, bundledIds) }
+            ?: legoKits.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.LegoKits, bundledIds) }
+            ?: instruments.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Instruments, bundledIds) }
+    }
+
+    private fun ShopEntry.toBundleShopItem(
+        vbuckIconUrl: String?,
+        bundledIds: Set<String>,
+    ): ShopItem? {
+        val representative = primaryOfferCosmetic() ?: return null
+        return ShopItem(
+            cosmeticId = representative.cosmeticId,
+            bundledCosmeticIds = bundledIds,
+            isBundle = true,
+            offerId = offerId,
+            name = bundle?.name.orEmpty().ifBlank { representative.name },
+            subtitle = bundle?.info ?: layout?.name,
+            description = representative.description,
+            typeLabel = "Bundle",
+            typeValue = "bundle",
+            filterLabel = "Bundles",
+            rarityLabel = representative.rarityLabel,
+            rarityKey = representative.rarityKey,
+            seriesName = representative.seriesName,
+            seriesImage = representative.seriesImage,
+            paletteHexes = representative.paletteHexes,
+            tileHexes = colors.toTileHexes(),
+            textBackgroundHex = colors?.textBackgroundColor,
+            imageUrl = bundle?.image ?: newDisplayAsset?.renderImages?.firstOrNull()?.image ?: representative.imageUrl,
+            price = finalPrice ?: regularPrice ?: 0,
+            regularPrice = regularPrice,
+            vbuckIconUrl = vbuckIconUrl,
+            inDate = inDate,
+            outDate = outDate,
+            bannerText = banner?.value,
+            sectionName = layout?.name ?: layout?.category,
+            addedDate = representative.addedDate,
+            source = representative.source,
+        )
+    }
+
     private fun ShopEntry.toShopItem(
         item: CosmeticItem,
         vbuckIconUrl: String?,
         source: CosmeticSource,
+        bundledIds: Set<String>,
     ): ShopItem = ShopItem(
         cosmeticId = item.id,
+        bundledCosmeticIds = bundledIds,
         offerId = offerId,
         name = item.name.orEmpty(),
         subtitle = bundle?.name ?: layout?.name,
@@ -235,11 +280,11 @@ class FortniteRepository(
         typeLabel = typeLabelFor(item.type?.value, item.type?.displayValue, source),
         typeValue = normalizeTypeValue(item.type?.value, source),
         filterLabel = filterLabelFor(item.type?.value, item.type?.displayValue, source),
-        rarityLabel = item.series?.value ?: item.rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
+        rarityLabel = rarityLabelFor(item.series?.value, item.rarity?.displayValue),
         rarityKey = item.series?.backendValue ?: item.rarity?.value.orEmpty(),
-        seriesName = item.series?.value,
+        seriesName = item.series?.value?.toDisplayRarityLabel(),
         seriesImage = item.series?.image,
-        paletteHexes = item.series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(item.rarity?.displayValue),
+        paletteHexes = item.series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(rarityLabelFor(null, item.rarity?.displayValue)),
         tileHexes = colors.toTileHexes(),
         textBackgroundHex = colors?.textBackgroundColor,
         imageUrl = item.images.bestShopImageUrl(newDisplayAsset?.renderImages?.firstOrNull()?.image, bundle?.image),
@@ -258,8 +303,10 @@ class FortniteRepository(
         item: CarCosmeticItem,
         vbuckIconUrl: String?,
         source: CosmeticSource,
+        bundledIds: Set<String>,
     ): ShopItem = ShopItem(
         cosmeticId = item.id,
+        bundledCosmeticIds = bundledIds,
         offerId = offerId,
         name = item.name.orEmpty(),
         subtitle = bundle?.name ?: layout?.name,
@@ -267,11 +314,11 @@ class FortniteRepository(
         typeLabel = typeLabelFor(item.type?.value, item.type?.displayValue, source),
         typeValue = normalizeTypeValue(item.type?.value, source),
         filterLabel = filterLabelFor(item.type?.value, item.type?.displayValue, source),
-        rarityLabel = item.series?.value ?: item.rarity?.displayValue.orEmpty().ifBlank { "Unknown" },
+        rarityLabel = rarityLabelFor(item.series?.value, item.rarity?.displayValue),
         rarityKey = item.series?.backendValue ?: item.rarity?.value.orEmpty(),
-        seriesName = item.series?.value,
+        seriesName = item.series?.value?.toDisplayRarityLabel(),
         seriesImage = item.series?.image,
-        paletteHexes = item.series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(item.rarity?.displayValue),
+        paletteHexes = item.series?.colors.takeUnless { it.isNullOrEmpty() } ?: rarityPalette(rarityLabelFor(null, item.rarity?.displayValue)),
         tileHexes = colors.toTileHexes(),
         textBackgroundHex = colors?.textBackgroundColor,
         imageUrl = item.images.bestShopImageUrl(newDisplayAsset?.renderImages?.firstOrNull()?.image, bundle?.image),
@@ -290,8 +337,10 @@ class FortniteRepository(
         item: TrackCosmeticItem,
         vbuckIconUrl: String?,
         source: CosmeticSource,
+        bundledIds: Set<String>,
     ): ShopItem = ShopItem(
         cosmeticId = item.id,
+        bundledCosmeticIds = bundledIds,
         offerId = offerId,
         name = item.title.orEmpty().ifBlank { item.devName.orEmpty() },
         subtitle = item.artist ?: layout?.name,
@@ -317,6 +366,22 @@ class FortniteRepository(
         addedDate = item.added,
         source = source,
     )
+
+    private fun ShopEntry.primaryOfferCosmetic(): ShopItem? =
+        brItems.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.BattleRoyale, bundledCosmeticIds()) }
+            ?: cars.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Cars, bundledCosmeticIds()) }
+            ?: tracks.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Tracks, bundledCosmeticIds()) }
+            ?: legoKits.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.LegoKits, bundledCosmeticIds()) }
+            ?: instruments.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Instruments, bundledCosmeticIds()) }
+
+    private fun ShopEntry.bundledCosmeticIds(): Set<String> =
+        buildSet {
+            addAll(brItems.map { it.id })
+            addAll(cars.map { it.id })
+            addAll(tracks.map { it.id })
+            addAll(legoKits.map { it.id })
+            addAll(instruments.map { it.id })
+        }
 
     private fun NewCosmeticsItems.allIds(): Set<String> = buildSet {
         addAll(br.map { it.id })
@@ -466,6 +531,26 @@ class FortniteRepository(
             "legoprop" -> "Lego Decor sets"
             else -> typeDisplayValue.orEmpty().ifBlank { source.defaultTypeLabel() }
         }
+    }
+
+    private fun rarityLabelFor(seriesValue: String?, rarityDisplayValue: String?): String =
+        (seriesValue ?: rarityDisplayValue)
+            .orEmpty()
+            .ifBlank { "Unknown" }
+            .toDisplayRarityLabel()
+
+    private fun String.toDisplayRarityLabel(): String {
+        val normalized = trim()
+            .replace(Regex("\\s+"), " ")
+            .lowercase(Locale.getDefault())
+        if (normalized == "gaming legends series") return "Gaming Legends Series"
+        return normalized
+            .split(" ")
+            .joinToString(" ") { word ->
+                word.replaceFirstChar { char ->
+                    if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                }
+            }
     }
 
     private suspend fun <T> loadStage(label: String, block: suspend () -> T): T = try {
