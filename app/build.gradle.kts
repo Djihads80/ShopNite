@@ -95,4 +95,17 @@ dependencies {
 
     // Add AppCompat to resolve theme errors from transitive dependencies
     implementation("androidx.appcompat:appcompat:1.7.0")
+
+    // DataStore for user settings
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Navigation for Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // ViewModel for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation("com.google.firebase:firebase-messaging")
 }
