@@ -87,12 +87,11 @@ class FortniteRepository(
 
     suspend fun getShop(language: String): ShopSnapshot {
         val data = apiService.getShop(language).data
-        val items = data.entries.mapNotNull { entry -> entry.toShopItem(data.vbuckIcon) }
+        val items = data.entries.mapNotNull { entry -> entry.toShopItem() }
 
         return ShopSnapshot(
             shopDate = data.date,
             hash = data.hash,
-            vbuckIconUrl = data.vbuckIcon,
             items = items,
         )
     }
@@ -216,21 +215,20 @@ class FortniteRepository(
             source = source,
         ).takeUnless { it.name.startsWithHiddenPrefix() }
 
-    private fun ShopEntry.toShopItem(vbuckIconUrl: String?): ShopItem? {
+    private fun ShopEntry.toShopItem(): ShopItem? {
         val bundledIds = bundledCosmeticIds()
         if (bundle != null) {
-            return toBundleShopItem(vbuckIconUrl, bundledIds)
+            return toBundleShopItem(bundledIds)
         }
 
-        return brItems.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.BattleRoyale, bundledIds) }
-            ?: cars.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Cars, bundledIds) }
-            ?: tracks.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Tracks, bundledIds) }
-            ?: legoKits.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.LegoKits, bundledIds) }
-            ?: instruments.firstOrNull()?.let { toShopItem(it, vbuckIconUrl, CosmeticSource.Instruments, bundledIds) }
+        return brItems.firstOrNull()?.let { toShopItem(it, CosmeticSource.BattleRoyale, bundledIds) }
+            ?: cars.firstOrNull()?.let { toShopItem(it, CosmeticSource.Cars, bundledIds) }
+            ?: tracks.firstOrNull()?.let { toShopItem(it, CosmeticSource.Tracks, bundledIds) }
+            ?: legoKits.firstOrNull()?.let { toShopItem(it, CosmeticSource.LegoKits, bundledIds) }
+            ?: instruments.firstOrNull()?.let { toShopItem(it, CosmeticSource.Instruments, bundledIds) }
     }
 
     private fun ShopEntry.toBundleShopItem(
-        vbuckIconUrl: String?,
         bundledIds: Set<String>,
     ): ShopItem? {
         val representative = primaryOfferCosmetic() ?: return null
@@ -255,7 +253,6 @@ class FortniteRepository(
             imageUrl = bundle?.image ?: newDisplayAsset?.renderImages?.firstOrNull()?.image ?: representative.imageUrl,
             price = finalPrice ?: regularPrice ?: 0,
             regularPrice = regularPrice,
-            vbuckIconUrl = vbuckIconUrl,
             inDate = inDate,
             outDate = outDate,
             bannerText = banner?.value,
@@ -267,7 +264,6 @@ class FortniteRepository(
 
     private fun ShopEntry.toShopItem(
         item: CosmeticItem,
-        vbuckIconUrl: String?,
         source: CosmeticSource,
         bundledIds: Set<String>,
     ): ShopItem = ShopItem(
@@ -290,7 +286,6 @@ class FortniteRepository(
         imageUrl = item.images.bestShopImageUrl(newDisplayAsset?.renderImages?.firstOrNull()?.image, bundle?.image),
         price = finalPrice ?: regularPrice ?: 0,
         regularPrice = regularPrice,
-        vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
         bannerText = banner?.value,
@@ -301,7 +296,6 @@ class FortniteRepository(
 
     private fun ShopEntry.toShopItem(
         item: CarCosmeticItem,
-        vbuckIconUrl: String?,
         source: CosmeticSource,
         bundledIds: Set<String>,
     ): ShopItem = ShopItem(
@@ -324,7 +318,6 @@ class FortniteRepository(
         imageUrl = item.images.bestShopImageUrl(newDisplayAsset?.renderImages?.firstOrNull()?.image, bundle?.image),
         price = finalPrice ?: regularPrice ?: 0,
         regularPrice = regularPrice,
-        vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
         bannerText = banner?.value,
@@ -335,7 +328,6 @@ class FortniteRepository(
 
     private fun ShopEntry.toShopItem(
         item: TrackCosmeticItem,
-        vbuckIconUrl: String?,
         source: CosmeticSource,
         bundledIds: Set<String>,
     ): ShopItem = ShopItem(
@@ -358,7 +350,6 @@ class FortniteRepository(
         imageUrl = item.albumArt ?: newDisplayAsset?.renderImages?.firstOrNull()?.image,
         price = finalPrice ?: regularPrice ?: 0,
         regularPrice = regularPrice,
-        vbuckIconUrl = vbuckIconUrl,
         inDate = inDate,
         outDate = outDate,
         bannerText = banner?.value,
@@ -368,11 +359,11 @@ class FortniteRepository(
     )
 
     private fun ShopEntry.primaryOfferCosmetic(): ShopItem? =
-        brItems.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.BattleRoyale, bundledCosmeticIds()) }
-            ?: cars.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Cars, bundledCosmeticIds()) }
-            ?: tracks.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Tracks, bundledCosmeticIds()) }
-            ?: legoKits.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.LegoKits, bundledCosmeticIds()) }
-            ?: instruments.firstOrNull()?.let { toShopItem(it, null, CosmeticSource.Instruments, bundledCosmeticIds()) }
+        brItems.firstOrNull()?.let { toShopItem(it, CosmeticSource.BattleRoyale, bundledCosmeticIds()) }
+            ?: cars.firstOrNull()?.let { toShopItem(it, CosmeticSource.Cars, bundledCosmeticIds()) }
+            ?: tracks.firstOrNull()?.let { toShopItem(it, CosmeticSource.Tracks, bundledCosmeticIds()) }
+            ?: legoKits.firstOrNull()?.let { toShopItem(it, CosmeticSource.LegoKits, bundledCosmeticIds()) }
+            ?: instruments.firstOrNull()?.let { toShopItem(it, CosmeticSource.Instruments, bundledCosmeticIds()) }
 
     private fun ShopEntry.bundledCosmeticIds(): Set<String> =
         buildSet {

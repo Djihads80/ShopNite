@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,7 +55,6 @@ import com.djihad.shopnite.ui.components.ErrorCard
 import com.djihad.shopnite.ui.components.InfoChip
 import com.djihad.shopnite.ui.components.LoadingCard
 import com.djihad.shopnite.ui.components.RarityPill
-import com.djihad.shopnite.ui.components.VbucksBadge
 import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 import com.djihad.shopnite.util.Formatters
@@ -417,7 +417,12 @@ private fun DetailPriceRow(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            VbucksBadge(modifier = Modifier.size(18.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.vbucks),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
             Text(
                 text = "${Formatters.formatPrice(price)} V-Bucks",
                 style = MaterialTheme.typography.bodyMedium,

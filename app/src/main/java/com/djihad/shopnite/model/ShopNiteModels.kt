@@ -2,7 +2,7 @@ package com.djihad.shopnite.model
 
 enum class AccountType(val apiValue: String, val label: String) {
     Epic("epic", "Epic"),
-    Psn("psn", "PlayStation"),
+    Psn("psn", "PSN"),
     Xbox("xbl", "Xbox");
 
     companion object {
@@ -114,7 +114,6 @@ data class ShopItem(
     val imageUrl: String?,
     val price: Int,
     val regularPrice: Int?,
-    val vbuckIconUrl: String?,
     val inDate: String?,
     val outDate: String?,
     val bannerText: String?,
@@ -126,7 +125,6 @@ data class ShopItem(
 data class ShopSnapshot(
     val shopDate: String?,
     val hash: String?,
-    val vbuckIconUrl: String?,
     val items: List<ShopItem>,
 )
 

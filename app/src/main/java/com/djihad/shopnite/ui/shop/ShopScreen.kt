@@ -18,12 +18,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -40,7 +42,6 @@ import com.djihad.shopnite.ui.components.FilterChipRow
 import com.djihad.shopnite.ui.components.LoadingCard
 import com.djihad.shopnite.ui.components.SearchControlsRow
 import com.djihad.shopnite.ui.components.SectionHeading
-import com.djihad.shopnite.ui.components.VbucksBadge
 import com.djihad.shopnite.ui.findRarityBackgroundRes
 import com.djihad.shopnite.ui.toComposeColors
 import com.djihad.shopnite.util.Formatters
@@ -209,13 +210,15 @@ private fun ShopTile(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        VbucksBadge(
+                        Icon(
+                            painter = painterResource(id = R.drawable.vbucks),
+                            contentDescription = null,
                             modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                         Text(
                             text = Formatters.formatPrice(item.price),
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
                         )
                     }
                     Text(

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ShopUiState(
-    val snapshot: ShopSnapshot = ShopSnapshot(null, null, null, emptyList()),
+    val snapshot: ShopSnapshot = ShopSnapshot(null, null, emptyList()),
     val searchQuery: String = "",
     val selectedType: String = CosmeticFilters.All,
     val selectedRarities: Set<String> = emptySet(),
