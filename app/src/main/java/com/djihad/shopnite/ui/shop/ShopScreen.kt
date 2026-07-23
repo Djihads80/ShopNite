@@ -215,7 +215,7 @@ private fun ShopTile(
                             painter = painterResource(id = R.drawable.vbucks),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            tint = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             text = Formatters.formatPrice(item.price),
