@@ -61,7 +61,9 @@ class HomeViewModel(
             _uiState.update { it.copy(isLoadingNews = true, newsErrorMessage = null) }
             runCatching { repository.getBattleRoyaleNews(language) }
                 .onSuccess { news ->
-                    _uiState.update { it.copy(news = news, isLoadingNews = false) }
+                    _uiState.update {
+                        it.copy(news = news.sortedBy { card -> card.title }, isLoadingNews = false)
+                    }
                 }
                 .onFailure { throwable ->
                     _uiState.update {
