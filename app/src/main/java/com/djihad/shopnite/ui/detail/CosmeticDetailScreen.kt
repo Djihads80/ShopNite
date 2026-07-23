@@ -421,7 +421,7 @@ private fun DetailPriceRow(
                 painter = painterResource(id = R.drawable.vbucks),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             Text(
                 text = "${Formatters.formatPrice(price)} V-Bucks",
