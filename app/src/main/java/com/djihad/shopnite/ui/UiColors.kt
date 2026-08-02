@@ -75,6 +75,7 @@ fun rarityPillColors(
         "bugatti_series" -> "#db1b2e" to "#e8e3e2"
         "pontiac_series" -> "#ac3746" to "#fffcf8"
         "aston_martin_series" -> "#00b7c5" to "#c9fafb"
+        "maserati_series" -> "#15284D" to "#D7E3ED"
         "defender_series" -> "#1b5b42" to "#fff"
         "rivian_series" -> "#fdb301" to "#fff"
         "chrysler_series" -> "#17244C" to "#E3E9EE"
