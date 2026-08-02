@@ -4,8 +4,8 @@
     <color name="widget_header_bg">#B71C1C</color>
     <color name="widget_header_on">#FFFFFF</color>
     <color name="widget_header_on_secondary">#FFD9DE</color>
-    <color name="widget_stat_card_bg">#F8D6DB</color>
+    <color name="widget_surface_variant">#E7EEFF</color>
+    <color name="widget_secondary_container">#F8D6DB</color>
     <color name="widget_stat_label">#6B3036</color>
     <color name="widget_stat_value">#3B0F12</color>
-    <color name="widget_surface">#F7DDE0</color>
 </resources>

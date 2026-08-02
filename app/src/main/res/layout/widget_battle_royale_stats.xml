@@ -58,19 +58,19 @@
             android:layout_columnWeight="1"
             android:orientation="vertical"
             android:padding="8dp"
-            android:background="#E8DEF8">
+            android:background="@drawable/widget_stat_card_bg">
             <TextView
                 android:id="@+id/widget_stat_1_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#49454F"
-                android:textSize="10sp" />
+                android:textColor="@color/widget_stat_label"
+                android:textSize="11sp" />
             <TextView
                 android:id="@+id/widget_stat_1_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1D1B20"
-                android:textSize="13sp"
+                android:textColor="@color/widget_stat_value"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -81,19 +81,19 @@
             android:layout_columnWeight="1"
             android:orientation="vertical"
             android:padding="8dp"
-            android:background="#E8DEF8">
+            android:background="@drawable/widget_stat_card_bg">
             <TextView
                 android:id="@+id/widget_stat_2_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#49454F"
-                android:textSize="10sp" />
+                android:textColor="@color/widget_stat_label"
+                android:textSize="11sp" />
             <TextView
                 android:id="@+id/widget_stat_2_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1D1B20"
-                android:textSize="13sp"
+                android:textColor="@color/widget_stat_value"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -104,19 +104,19 @@
             android:layout_columnWeight="1"
             android:orientation="vertical"
             android:padding="8dp"
-            android:background="#E8DEF8">
+            android:background="@drawable/widget_stat_card_bg">
             <TextView
                 android:id="@+id/widget_stat_3_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#49454F"
-                android:textSize="10sp" />
+                android:textColor="@color/widget_stat_label"
+                android:textSize="11sp" />
             <TextView
                 android:id="@+id/widget_stat_3_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1D1B20"
-                android:textSize="13sp"
+                android:textColor="@color/widget_stat_value"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -127,19 +127,19 @@
             android:layout_columnWeight="1"
             android:orientation="vertical"
             android:padding="8dp"
-            android:background="#E8DEF8">
+            android:background="@drawable/widget_stat_card_bg">
             <TextView
                 android:id="@+id/widget_stat_4_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#49454F"
-                android:textSize="10sp" />
+                android:textColor="@color/widget_stat_label"
+                android:textSize="11sp" />
             <TextView
                 android:id="@+id/widget_stat_4_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1D1B20"
-                android:textSize="13sp"
+                android:textColor="@color/widget_stat_value"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -150,19 +150,19 @@
             android:layout_columnWeight="1"
             android:orientation="vertical"
             android:padding="8dp"
-            android:background="#E8DEF8">
+            android:background="@drawable/widget_stat_card_bg">
             <TextView
                 android:id="@+id/widget_stat_5_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#49454F"
-                android:textSize="10sp" />
+                android:textColor="@color/widget_stat_label"
+                android:textSize="11sp" />
             <TextView
                 android:id="@+id/widget_stat_5_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1D1B20"
-                android:textSize="13sp"
+                android:textColor="@color/widget_stat_value"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
