@@ -46,7 +46,7 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
             val summary = loadSummary(container, settings)
 
             val views = RemoteViews(appContext.packageName, R.layout.widget_battle_royale_stats).apply {
-                bindViews(settings, summary)
+                bindViews(appContext, settings, summary)
                 val launchIntent = Intent(appContext, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 }
@@ -82,7 +82,7 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         }.getOrNull()
     }
 
-    private fun RemoteViews.bindViews(settings: UserSettings, summary: BrSummary?) {
+    private fun RemoteViews.bindViews(context: Context, settings: UserSettings, summary: BrSummary?) {
         val titleText = summary?.playerName?.takeIf { it.isNotBlank() }
             ?: settings.playerName.takeIf { it.isNotBlank() }
             ?: context.getString(R.string.widget_battle_royale_setup)
