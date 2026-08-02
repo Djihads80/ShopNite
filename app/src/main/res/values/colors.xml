@@ -1,9 +1,9 @@
 <resources>
     <color name="ic_launcher_background">#101B35</color>
     <!-- Widget / Material-like colors -->
-    <color name="widget_header_bg">#B71C1C</color>
-    <color name="widget_header_on">#FFFFFF</color>
-    <color name="widget_header_on_secondary">#FFD9DE</color>
+    <color name="widget_header_bg">#18C2FF</color>
+    <color name="widget_header_on">#101B35</color>
+    <color name="widget_header_on_secondary">#101B35</color>
     <color name="widget_surface_variant">#E7EEFF</color>
     <color name="widget_secondary_container">#F8D6DB</color>
     <color name="widget_stat_label">#6B3036</color>
