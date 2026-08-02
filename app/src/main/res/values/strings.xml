@@ -23,6 +23,9 @@
     <string name="home_summary_error">Couldn\'t load the current season summary.</string>
     <string name="home_loading_news">Loading Battle Royale news...</string>
     <string name="home_news_empty">No Battle Royale news is available right now.</string>
+    <string name="widget_battle_royale_title">Battle Royale</string>
+    <string name="widget_battle_royale_subtitle">Current Season Summary</string>
+    <string name="widget_battle_royale_setup">Set up your Fortnite profile in Settings to see stats here.</string>
     <string name="shop_supporting">Current live shop</string>
     <string name="shop_search">Search shop</string>
     <string name="shop_loading">Loading the current item shop...</string>
