@@ -91,30 +91,55 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         setTextViewText(R.id.widget_player_name, titleText)
         setTextViewText(R.id.widget_subtitle, summary?.let { context.getString(R.string.widget_battle_royale_subtitle) } ?: context.getString(R.string.widget_battle_royale_setup))
 
-        val statRows = summary?.statTiles?.take(3).orEmpty()
-        when (statRows.size) {
-            0 -> {
-                setTextViewText(R.id.widget_stat_1_label, "")
-                setTextViewText(R.id.widget_stat_1_value, "")
-                setTextViewText(R.id.widget_stat_2_label, "")
-                setTextViewText(R.id.widget_stat_2_value, "")
-                setTextViewText(R.id.widget_stat_3_label, "")
-                setTextViewText(R.id.widget_stat_3_value, "")
-            }
-            1 -> bindStatRow(R.id.widget_stat_1_label, R.id.widget_stat_1_value, statRows[0])
-            2 -> {
-                bindStatRow(R.id.widget_stat_1_label, R.id.widget_stat_1_value, statRows[0])
-                bindStatRow(R.id.widget_stat_2_label, R.id.widget_stat_2_value, statRows[1])
-            }
-            else -> {
-                bindStatRow(R.id.widget_stat_1_label, R.id.widget_stat_1_value, statRows[0])
-                bindStatRow(R.id.widget_stat_2_label, R.id.widget_stat_2_value, statRows[1])
-                bindStatRow(R.id.widget_stat_3_label, R.id.widget_stat_3_value, statRows[2])
-            }
+        val statTiles = summary?.statTiles.orEmpty()
+        val visibleStats = statTiles.take(if (statTiles.size >= 6) 6 else statTiles.size)
+
+        clearStatRows()
+        visibleStats.forEachIndexed { index, stat ->
+            bindStatRow(index, stat)
         }
     }
 
-    private fun RemoteViews.bindStatRow(labelId: Int, valueId: Int, stat: SummaryStat) {
+    private fun RemoteViews.clearStatRows() {
+        for (index in 0 until 6) {
+            val labelId = when (index) {
+                0 -> R.id.widget_stat_1_label
+                1 -> R.id.widget_stat_2_label
+                2 -> R.id.widget_stat_3_label
+                3 -> R.id.widget_stat_4_label
+                4 -> R.id.widget_stat_5_label
+                else -> R.id.widget_stat_6_label
+            }
+            val valueId = when (index) {
+                0 -> R.id.widget_stat_1_value
+                1 -> R.id.widget_stat_2_value
+                2 -> R.id.widget_stat_3_value
+                3 -> R.id.widget_stat_4_value
+                4 -> R.id.widget_stat_5_value
+                else -> R.id.widget_stat_6_value
+            }
+            setTextViewText(labelId, "")
+            setTextViewText(valueId, "")
+        }
+    }
+
+    private fun RemoteViews.bindStatRow(index: Int, stat: SummaryStat) {
+        val labelId = when (index) {
+            0 -> R.id.widget_stat_1_label
+            1 -> R.id.widget_stat_2_label
+            2 -> R.id.widget_stat_3_label
+            3 -> R.id.widget_stat_4_label
+            4 -> R.id.widget_stat_5_label
+            else -> R.id.widget_stat_6_label
+        }
+        val valueId = when (index) {
+            0 -> R.id.widget_stat_1_value
+            1 -> R.id.widget_stat_2_value
+            2 -> R.id.widget_stat_3_value
+            3 -> R.id.widget_stat_4_value
+            4 -> R.id.widget_stat_5_value
+            else -> R.id.widget_stat_6_value
+        }
         setTextViewText(labelId, stat.label)
         setTextViewText(valueId, stat.value)
     }

@@ -2,9 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#182033">
+    android:background="@drawable/widget_background">
 
     <TextView
         android:id="@+id/widget_title"
@@ -34,82 +34,140 @@
         android:textColor="#C7D2E3"
         android:textSize="12sp" />
 
-    <LinearLayout
+    <GridLayout
         android:id="@+id/widget_stats_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/widget_subtitle"
         android:layout_marginTop="12dp"
-        android:orientation="vertical">
+        android:columnCount="3"
+        android:rowCount="2"
+        android:useDefaultMargins="true">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="3">
-
-            <LinearLayout
-                android:layout_width="0dp"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:padding="4dp">
+            <TextView
+                android:id="@+id/widget_stat_1_label"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="4dp">
-                <TextView
-                    android:id="@+id/widget_stat_1_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#AEB9CB"
-                    android:textSize="11sp" />
-                <TextView
-                    android:id="@+id/widget_stat_1_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
+                android:textColor="#AEB9CB"
+                android:textSize="11sp" />
+            <TextView
+                android:id="@+id/widget_stat_1_value"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="4dp">
-                <TextView
-                    android:id="@+id/widget_stat_2_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#AEB9CB"
-                    android:textSize="11sp" />
-                <TextView
-                    android:id="@+id/widget_stat_2_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="4dp">
-                <TextView
-                    android:id="@+id/widget_stat_3_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#AEB9CB"
-                    android:textSize="11sp" />
-                <TextView
-                    android:id="@+id/widget_stat_3_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
-    </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:padding="4dp">
+            <TextView
+                android:id="@+id/widget_stat_2_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AEB9CB"
+                android:textSize="11sp" />
+            <TextView
+                android:id="@+id/widget_stat_2_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:padding="4dp">
+            <TextView
+                android:id="@+id/widget_stat_3_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AEB9CB"
+                android:textSize="11sp" />
+            <TextView
+                android:id="@+id/widget_stat_3_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:padding="4dp">
+            <TextView
+                android:id="@+id/widget_stat_4_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AEB9CB"
+                android:textSize="11sp" />
+            <TextView
+                android:id="@+id/widget_stat_4_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:padding="4dp">
+            <TextView
+                android:id="@+id/widget_stat_5_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AEB9CB"
+                android:textSize="11sp" />
+            <TextView
+                android:id="@+id/widget_stat_5_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:padding="4dp">
+            <TextView
+                android:id="@+id/widget_stat_6_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AEB9CB"
+                android:textSize="11sp" />
+            <TextView
+                android:id="@+id/widget_stat_6_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </GridLayout>
 </RelativeLayout>
