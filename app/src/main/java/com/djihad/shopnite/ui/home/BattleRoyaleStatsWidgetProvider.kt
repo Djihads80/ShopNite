@@ -6,8 +6,15 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.content.res.Configuration
+import android.os.Build
 import android.widget.RemoteViews
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.graphics.toArgb
 import com.djihad.shopnite.MainActivity
 import com.djihad.shopnite.R
 import com.djihad.shopnite.ShopNiteApplication
@@ -92,17 +99,7 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         setTextViewText(R.id.widget_player_name, titleText)
         setTextViewText(R.id.widget_subtitle, summary?.let { context.getString(R.string.widget_battle_royale_subtitle) } ?: context.getString(R.string.widget_battle_royale_setup))
 
-        setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_background)
-        setInt(R.id.widget_header, "setBackgroundResource", R.drawable.widget_header_bg)
-        setInt(R.id.widget_stat_card_1, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_2, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_3, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_4, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_5, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_6, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_7, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_8, "setBackgroundResource", R.drawable.widget_stat_card_bg)
-        setInt(R.id.widget_stat_card_9, "setBackgroundResource", R.drawable.widget_stat_card_bg)
+        applyWidgetThemeColors(context)
 
         val statTiles = summary?.statTiles.orEmpty()
         val visibleStats = statTiles.take(if (statTiles.size >= 9) 9 else statTiles.size)
@@ -167,5 +164,104 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         }
         setTextViewText(labelId, stat.label)
         setTextViewText(valueId, stat.value)
+    }
+
+    private fun RemoteViews.applyWidgetThemeColors(context: Context) {
+        val colorScheme = context.resolveWidgetColorScheme()
+        val rootBackgroundColor = colorScheme.surfaceVariant.toArgb()
+        val headerBackgroundColor = colorScheme.primary.toArgb()
+        val statCardBackgroundColor = colorScheme.secondaryContainer.toArgb()
+        val headerTextColor = colorScheme.onPrimary.toArgb()
+        val statLabelTextColor = colorScheme.onSurfaceVariant.toArgb()
+        val statValueTextColor = colorScheme.onSurface.toArgb()
+
+        setInt(R.id.widget_root_bg, "setColorFilter", rootBackgroundColor)
+        setInt(R.id.widget_header_bg_img, "setColorFilter", headerBackgroundColor)
+
+        listOf(
+            R.id.widget_stat_card_bg_1,
+            R.id.widget_stat_card_bg_2,
+            R.id.widget_stat_card_bg_3,
+            R.id.widget_stat_card_bg_4,
+            R.id.widget_stat_card_bg_5,
+            R.id.widget_stat_card_bg_6,
+            R.id.widget_stat_card_bg_7,
+            R.id.widget_stat_card_bg_8,
+            R.id.widget_stat_card_bg_9,
+        ).forEach { cardBgId ->
+            setInt(cardBgId, "setColorFilter", statCardBackgroundColor)
+        }
+
+        listOf(
+            R.id.widget_title,
+            R.id.widget_player_name,
+            R.id.widget_subtitle,
+        ).forEach { textId ->
+            setTextColor(textId, headerTextColor)
+        }
+
+        listOf(
+            R.id.widget_stat_1_label,
+            R.id.widget_stat_2_label,
+            R.id.widget_stat_3_label,
+            R.id.widget_stat_4_label,
+            R.id.widget_stat_5_label,
+            R.id.widget_stat_6_label,
+            R.id.widget_stat_7_label,
+            R.id.widget_stat_8_label,
+            R.id.widget_stat_9_label,
+        ).forEach { textId ->
+            setTextColor(textId, statLabelTextColor)
+        }
+
+        listOf(
+            R.id.widget_stat_1_value,
+            R.id.widget_stat_2_value,
+            R.id.widget_stat_3_value,
+            R.id.widget_stat_4_value,
+            R.id.widget_stat_5_value,
+            R.id.widget_stat_6_value,
+            R.id.widget_stat_7_value,
+            R.id.widget_stat_8_value,
+            R.id.widget_stat_9_value,
+        ).forEach { textId ->
+            setTextColor(textId, statValueTextColor)
+        }
+    }
+
+    private fun Context.resolveWidgetColorScheme(): ColorScheme {
+        val isDarkTheme = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (isDarkTheme) dynamicDarkColorScheme(this) else dynamicLightColorScheme(this)
+        } else {
+            if (isDarkTheme) darkColorScheme(
+                primary = androidx.compose.ui.graphics.Color(0xFF0091FF),
+                onPrimary = androidx.compose.ui.graphics.Color(0xFF001E3C),
+                secondary = androidx.compose.ui.graphics.Color(0xFFFFD166),
+                onSecondary = androidx.compose.ui.graphics.Color(0xFF001E3C),
+                tertiary = androidx.compose.ui.graphics.Color(0xFF5D99FF),
+                background = androidx.compose.ui.graphics.Color(0xFF0A1221),
+                onBackground = androidx.compose.ui.graphics.Color(0xFFF3F4F8),
+                surface = androidx.compose.ui.graphics.Color(0xFF121B2B),
+                onSurface = androidx.compose.ui.graphics.Color(0xFFF3F4F8),
+                surfaceVariant = androidx.compose.ui.graphics.Color(0xFF384969),
+                onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFBFC7DB),
+                outline = androidx.compose.ui.graphics.Color(0xFF5D99FF),
+            ) else lightColorScheme(
+                primary = androidx.compose.ui.graphics.Color(0xFF0091FF),
+                onPrimary = androidx.compose.ui.graphics.Color(0xFF001E3C),
+                secondary = androidx.compose.ui.graphics.Color(0xFFFFD166),
+                onSecondary = androidx.compose.ui.graphics.Color(0xFF001E3C),
+                tertiary = androidx.compose.ui.graphics.Color(0xFF0E2D52),
+                background = androidx.compose.ui.graphics.Color(0xFFF8FAFF),
+                onBackground = androidx.compose.ui.graphics.Color(0xFF001E3C),
+                surface = androidx.compose.ui.graphics.Color(0xFFF8FAFF),
+                onSurface = androidx.compose.ui.graphics.Color(0xFF001E3C),
+                surfaceVariant = androidx.compose.ui.graphics.Color(0xFFE7EEFF),
+                onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFF4B5563),
+                outline = androidx.compose.ui.graphics.Color(0xFF7B92C9),
+            )
+        }
     }
 }
