@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.widget.RemoteViews
 import com.djihad.shopnite.MainActivity
 import com.djihad.shopnite.R
@@ -90,6 +91,15 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         setTextViewText(R.id.widget_title, context.getString(R.string.widget_battle_royale_title))
         setTextViewText(R.id.widget_player_name, titleText)
         setTextViewText(R.id.widget_subtitle, summary?.let { context.getString(R.string.widget_battle_royale_subtitle) } ?: context.getString(R.string.widget_battle_royale_setup))
+
+        setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_background)
+        setInt(R.id.widget_header, "setBackgroundColor", Color.parseColor("#6750A4"))
+        setInt(R.id.widget_stat_card_1, "setBackgroundColor", Color.parseColor("#E8DEF8"))
+        setInt(R.id.widget_stat_card_2, "setBackgroundColor", Color.parseColor("#E8DEF8"))
+        setInt(R.id.widget_stat_card_3, "setBackgroundColor", Color.parseColor("#E8DEF8"))
+        setInt(R.id.widget_stat_card_4, "setBackgroundColor", Color.parseColor("#E8DEF8"))
+        setInt(R.id.widget_stat_card_5, "setBackgroundColor", Color.parseColor("#E8DEF8"))
+        setInt(R.id.widget_stat_card_6, "setBackgroundColor", Color.parseColor("#E8DEF8"))
 
         val statTiles = summary?.statTiles.orEmpty()
         val visibleStats = statTiles.take(if (statTiles.size >= 6) 6 else statTiles.size)

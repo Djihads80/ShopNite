@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -201,15 +200,7 @@ private fun SummaryCard(summary: BrSummary) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.92f),
-                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.85f),
-                                MaterialTheme.colorScheme.surfaceVariant,
-                            ),
-                        ),
-                    )
+                    .background(MaterialTheme.colorScheme.primary)
                     .padding(20.dp),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
