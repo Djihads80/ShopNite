@@ -176,7 +176,7 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         val statValueTextColor = colorScheme.onSurface.toArgb()
 
         setInt(R.id.widget_root_bg, "setColorFilter", rootBackgroundColor)
-        setInt(R.id.widget_header_bg_img, "setColorFilter", headerBackgroundColor)
+        setInt(R.id.widget_header, "setBackgroundColor", headerBackgroundColor)
 
         listOf(
             R.id.widget_stat_card_bg_1,
