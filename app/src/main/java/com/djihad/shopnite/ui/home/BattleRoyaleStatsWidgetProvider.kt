@@ -95,7 +95,6 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
             ?: settings.playerName.takeIf { it.isNotBlank() }
             ?: context.getString(R.string.widget_battle_royale_setup)
 
-        setTextViewText(R.id.widget_title, context.getString(R.string.widget_battle_royale_title))
         setTextViewText(R.id.widget_player_name, titleText)
         setTextViewText(R.id.widget_subtitle, summary?.let { context.getString(R.string.widget_battle_royale_subtitle) } ?: context.getString(R.string.widget_battle_royale_setup))
 
@@ -176,7 +175,7 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         val statValueTextColor = colorScheme.onSurface.toArgb()
 
         setInt(R.id.widget_root_bg, "setColorFilter", rootBackgroundColor)
-        setInt(R.id.widget_header, "setBackgroundColor", headerBackgroundColor)
+        setInt(R.id.widget_header_bg_image, "setColorFilter", headerBackgroundColor)
 
         listOf(
             R.id.widget_stat_card_bg_1,
@@ -193,7 +192,6 @@ class BattleRoyaleStatsWidgetProvider : AppWidgetProvider() {
         }
 
         listOf(
-            R.id.widget_title,
             R.id.widget_player_name,
             R.id.widget_subtitle,
         ).forEach { textId ->

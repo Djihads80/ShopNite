@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:padding="10dp">
 
     <ImageView
@@ -15,32 +15,33 @@
     <LinearLayout
         android:id="@+id/widget_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/widget_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:orientation="vertical"
-            android:background="@drawable/widget_header_bg"
-            android:padding="12dp">
+            android:layout_marginBottom="10dp">
 
-                <TextView
-                    android:id="@+id/widget_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Battle Royale"
-                    android:textColor="@color/widget_header_on"
-                    android:textStyle="bold"
-                    android:textSize="14sp" />
+            <ImageView
+                android:id="@+id/widget_header_bg_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/widget_header_bg" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/widget_player_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
                     android:textColor="@color/widget_header_on"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -53,6 +54,7 @@
                     android:textColor="@color/widget_header_on"
                     android:textSize="11sp" />
             </LinearLayout>
+        </FrameLayout>
         <GridLayout
         android:id="@+id/widget_stats_container"
         android:layout_width="match_parent"
