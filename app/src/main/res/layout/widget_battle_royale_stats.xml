@@ -15,7 +15,7 @@
     <LinearLayout
         android:id="@+id/widget_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <FrameLayout
@@ -33,7 +33,7 @@
             <LinearLayout
                 android:id="@+id/widget_header"
                 android:layout_width="match_parent"
-                android:layout_height="65dp"
+                android:layout_height="70dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -51,15 +51,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="@color/widget_header_on"
-                    android:textSize="12sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </FrameLayout>
 
         <GridLayout
             android:id="@+id/widget_stats_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="8dp"
+            android:layout_weight="1"
             android:paddingHorizontal="8dp"
             android:paddingBottom="8dp"
             android:columnCount="3"
@@ -68,8 +69,10 @@
             <!-- Stat 1 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -82,7 +85,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_1"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -106,8 +110,10 @@
             <!-- Stat 2 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -120,7 +126,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -144,8 +151,10 @@
             <!-- Stat 3 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -158,7 +167,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -182,8 +192,10 @@
             <!-- Stat 4 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -196,7 +208,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_4"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -220,8 +233,10 @@
             <!-- Stat 5 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -234,7 +249,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_5"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -258,8 +274,10 @@
             <!-- Stat 6 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -272,7 +290,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_6"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -296,8 +315,10 @@
             <!-- Stat 7 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -310,7 +331,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_7"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -334,8 +356,10 @@
             <!-- Stat 8 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -348,7 +372,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_8"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -372,8 +397,10 @@
             <!-- Stat 9 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="fill"
                 android:layout_margin="4dp">
 
                 <ImageView
@@ -386,7 +413,8 @@
                 <LinearLayout
                     android:id="@+id/widget_stat_card_9"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:padding="8dp">
 
