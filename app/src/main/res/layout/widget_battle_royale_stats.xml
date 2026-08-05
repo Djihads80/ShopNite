@@ -27,7 +27,7 @@
             <ImageView
                 android:id="@+id/widget_header_bg_image"
                 android:layout_width="match_parent"
-                android:layout_height="111dp"
+                android:layout_height="51dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/widget_header_bg" />
@@ -68,9 +68,10 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_1"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:padding="8dp"
+                android:rotationY="9">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_1"
@@ -88,15 +89,15 @@
 
                     <TextView
                         android:id="@+id/widget_stat_1_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_height="14dp"
                         android:textColor="@color/widget_stat_label"
                         android:textSize="11sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_1_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -106,9 +107,10 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_2"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:padding="8dp"
+                android:rotationY="9">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_2"
@@ -133,8 +135,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_2_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -144,9 +146,10 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_3"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:padding="8dp"
+                android:rotationY="9">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_3"
@@ -171,8 +174,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_3_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -182,7 +185,7 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_4"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
                 android:padding="8dp">
 
@@ -209,8 +212,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_4_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -220,7 +223,7 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_5"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
                 android:padding="8dp">
 
@@ -247,8 +250,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_5_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -258,7 +261,7 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_6"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
                 android:padding="8dp">
 
@@ -285,8 +288,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_6_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -296,7 +299,7 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_7"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
                 android:padding="8dp">
 
@@ -323,8 +326,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_7_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -334,7 +337,7 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_8"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
                 android:padding="8dp">
 
@@ -361,8 +364,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_8_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -372,7 +375,7 @@
             <FrameLayout
                 android:id="@+id/widget_stat_card_9"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_columnWeight="1"
                 android:padding="8dp">
 
@@ -399,8 +402,8 @@
 
                     <TextView
                         android:id="@+id/widget_stat_9_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="80dp"
+                        android:layout_height="20dp"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
