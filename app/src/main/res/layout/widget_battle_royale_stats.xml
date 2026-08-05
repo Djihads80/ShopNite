@@ -53,8 +53,6 @@
                     android:textColor="@color/widget_header_on"
                     android:textSize="11sp" />
             </LinearLayout>
-        </FrameLayout>
-
         <GridLayout
         android:id="@+id/widget_stats_container"
         android:layout_width="match_parent"
