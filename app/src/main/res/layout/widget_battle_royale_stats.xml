@@ -3,7 +3,7 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
+    android:padding="8dp">
 
     <ImageView
         android:id="@+id/widget_root_bg"
@@ -15,28 +15,27 @@
     <LinearLayout
         android:id="@+id/widget_container"
         android:layout_width="match_parent"
-        android:layout_height="645dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <FrameLayout
-            android:id="@+id/widget_header"
+            android:id="@+id/widget_header_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/widget_header_bg_image"
                 android:layout_width="match_parent"
-                android:layout_height="51dp"
-                android:adjustViewBounds="true"
+                android:layout_height="match_parent"
                 android:scaleType="fitXY"
                 android:src="@drawable/widget_header_bg" />
 
             <LinearLayout
+                android:id="@+id/widget_header"
                 android:layout_width="match_parent"
-                android:layout_height="85dp"
+                android:layout_height="65dp"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="16dp">
 
                 <TextView
                     android:id="@+id/widget_player_name"
@@ -50,9 +49,9 @@
                     android:id="@+id/widget_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="2dp"
                     android:textColor="@color/widget_header_on"
-                    android:textSize="11sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
         </FrameLayout>
 
@@ -60,28 +59,28 @@
             android:id="@+id/widget_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="8dp"
+            android:paddingBottom="8dp"
             android:columnCount="3"
-            android:rowCount="3"
             android:useDefaultMargins="false">
 
+            <!-- Stat 1 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_1"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp"
-                android:rotationY="9">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -92,35 +91,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_1_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 2 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_2"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp"
-                android:rotationY="9">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -131,35 +129,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_2_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 3 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_3"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp"
-                android:rotationY="9">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -170,34 +167,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_3_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 4 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_4"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_4"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -208,34 +205,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_4_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 5 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_5"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_5"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -246,34 +243,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_5_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 6 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_6"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_6"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -284,34 +281,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_6_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 7 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_7"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_7"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_7"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -322,34 +319,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_7_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 8 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_8"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_8"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_8"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -360,34 +357,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_8_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
 
+            <!-- Stat 9 -->
             <FrameLayout
-                android:id="@+id/widget_stat_card_9"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:padding="8dp">
+                android:layout_margin="4dp">
 
                 <ImageView
                     android:id="@+id/widget_stat_card_bg_9"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
                     android:scaleType="fitXY"
                     android:src="@drawable/widget_stat_card_bg" />
 
                 <LinearLayout
+                    android:id="@+id/widget_stat_card_9"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -398,12 +395,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_label"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                     <TextView
                         android:id="@+id/widget_stat_9_value"
-                        android:layout_width="80dp"
-                        android:layout_height="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/widget_stat_value"
                         android:textSize="14sp"
                         android:textStyle="bold" />
